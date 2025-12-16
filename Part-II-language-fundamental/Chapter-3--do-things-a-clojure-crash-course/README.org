@@ -1,4 +1,4 @@
-#+TITLE: Clojure For The Brave and True Part -- II Language Fundamental
+#+TITLE: Clojure For The Brave and True Part II -- Chapter 3 Language Fundamental
 #+DATE: 2025-08-13 Wed
 #+AUTHOR: Agung Tuanany
 #+DESCRIPTION: Clojure, book, A summary per chapter from book clojure-for-the-brave-and-true.
@@ -26,8 +26,6 @@ form to produce a value.
   ["a" "vector" "of" "string"]
 #+END_SRC
 
-#+RESULTS:
-
 ** Control Flow
 
 Basic control flow operations: /if/, /do/, and /when/.
@@ -44,7 +42,6 @@ This is the general structure for an if expression:
 #+END_SRC
 
 A Boolean form is just a form that evaluates to a thruthy or falsely value.
-#+RESULTS:
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
 
@@ -68,7 +65,6 @@ false, Clojure return nil.
   ;; omit else branch with return nil
   (if false
     "By odin's Elbow!")
-
 #+END_SRC
 
 
@@ -95,15 +91,13 @@ The /do/ operator lets you /wrap up/ multiple forms in parenthesis and run each
 of them.
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
-  (if true
-    (do (println "Success!")
-        "By Zeus's hammer!")
-    (do (println "Failure!")
-        "By Aquaman's trident!"))
+    (if true
+      (do (println "Success!")
+          "By Zeus's hammer!")
+      (do (println "Failure!")
+          "By Aquaman's trident!"))
+  ;; => By Zeus's hammer!
 #+END_SRC
-
-#+RESULTS:
-: By Zeus's hammer!
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (if false
@@ -111,10 +105,9 @@ of them.
         "By Zeus's hammer!")
     (do (println "Failure!")
         "By Aquaman's trident!"))
-#+END_SRC
 
-#+RESULTS:
-: By Aquaman's trident!
+  ;; => By Aquaman's trident!
+#+END_SRC
 
 NOTICE: the RESULT is "By Aquaman's trident", but when you open the REPL, it's
 print "Failure!", because
@@ -136,10 +129,10 @@ Here an example
   (when true
     (println "Success!")
     "abra cadabra")
+
+  ;; => abra cadabra
 #+END_SRC
 
-#+RESULTS:
-: abra cadabra
 
 It's use when if you want to do multiple things when some condition is true, and
 you always want to return /nil/ when the condition is false.
@@ -152,13 +145,13 @@ function:
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (nil? 1)
-#+END_SRC
 
-#+RESULTS:
-: false
+  ;; => false
+#+END_SRC
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (nil? nil)
+  ;; => true
 #+END_SRC
 
 
@@ -169,16 +162,17 @@ is treated in a Boolean expression passed to if:
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (if "bears eat beets"
     "bears beets Battelstar Galactica")
-#+END_SRC
 
-#+RESULTS:
-: bears beets Battelstar Galactica
+  ;; => bears beets Battelstar Galactica
+#+END_SRC
 
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (if nil
     "this won't be the result because nil is falsey"
     "nil is falsey")
+
+  ;; => nil is falsey
 #+end_src
 
 in the first example, the string "bears eat beets" is considered truthy, so the
@@ -189,24 +183,21 @@ Clojure equality operator is ~=~.
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (= 1 1)
-#+end_src
 
-#+RESULTS:
-: true
+  ;; => true
+#+end_src
 
 #+BEGIN_SRC clojure :result output :exports both eval: never-export
   (= nil nil)
-#+end_src
 
-#+RESULTS:
-: true
+  ;; => true
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (= 1 2)
-#+end_src
 
-#+results:
-: false
+  ;; => false
+#+end_src
 
 some other languages require you to use different operators when comparing of
 different types. for example, you might have to use some kind of special string
@@ -220,24 +211,22 @@ values are falsey, the last truthy value.
 
 #+begin_src clojure :result output :exports both eval: never-export
   (or false nil :large_I_mean_venti :why_cant_I_just_say_large)
+
+  ;; => large_I_mean_venti
 #+end_src
 
-#+RESULTS:
-: :large_I_mean_venti
 
 #+begin_src clojure :result output :exports both eval: never-export
   (or (= 0 1) (= "yes" "no"))
-#+end_src
 
-#+RESULTS:
-: false
+  ;; => false
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (or nil)
-#+end_src
 
-#+RESULTS:
-: nil
+  ;; => nil
+#+end_src
 
 In the first example, the return value is ":large_I_mean_venti" because it's the
 first truthy value. The second example has no truthy values, so /or/ returns the
@@ -246,27 +235,22 @@ exist, and /or/ return the last value, which is /nil/. Now let's look at /end/:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (and :free_wifi :hot_coffee)
+  ;; => hot_coffee
 #+end_src
-
-#+RESULTS:
-: :hot_coffee
 
 #+begin_src clojure :result output :exports both eval: never-export
   (and :feelin_super_cool nil false)
+  ;; => nil
 #+end_src
-
-#+RESULTS:
-: nil
 
 In the first example, /and/ returns the last value, ":hot_coffee". In the second
 example, /and/ returns nil, which is the first falsey value.
 
 #+begin_src clojure :result output :exports both eval: never-export
   (and :feelin_super_cool false nil)
-#+end_src
 
-#+RESULTS:
-: false
+  ;; => false
+#+end_src
 
 *** Naming Values with /def/
 
@@ -277,10 +261,8 @@ You use /def/ to /bind/ a name to a value in Clojure:
     ["Larry Potter" "Dooren the Explorer" "The Incredible Bulk"])
 
   failed-protagonis-names
+  ;; => ["Larry Potter" "Dooren the Explorer" "The Incredible Bulk"]
 #+end_src
-
-#+RESULTS:
-: ["Larry Potter" "Dooren the Explorer" "The Incredible Bulk"]
 
 In this case, you're binding the name 'failed-protagonis-names' to a vector
 containing three strings (you'll learn about vectors in "Vectors")
@@ -300,10 +282,9 @@ For example, in Ruby you might
     error_message error_message + "DOOOOOOOMED!"
   end
   puts error_message
-#+END_SRC
 
-#+RESULTS:
-: OH GOD! ITS A DISASTER! WE'REMILDY INCONVENIENCED
+   # => OH GOD! ITS A DISASTER! WE'REMILDY INCONVENIENCED
+#+END_SRC
 
 You might be tempted to do something similar in Clojure:
 
@@ -317,10 +298,8 @@ You might be tempted to do something similar in Clojure:
     (def error-message (str error-message "DOOOOOOOMED!")))
 
   error-message
+  ;; => OH GOD! IT'S A DISASTER! WE'RE MILDLY INCONVENIENCED!
 #+end_src
-
-#+RESULTS:
-: OH GOD! IT'S A DISASTER! WE'RE MILDLY INCONVENIENCED!
 
 Above code is hard to understand with the program's behavior because it's more
 difficult to know which value is associated with a name or why that value might
@@ -338,10 +317,8 @@ preceding code:
            "DOOOOOOOMED!")))
 
   (error-message :mild)
+  ;; => OH GOD! IT'S A DISASTER! WE'RE MILDY INCONVENIENCED!
 #+end_src
-
-#+RESULTS:
-: OH GOD! IT'S A DISASTER! WE'RE MILDY INCONVENIENCED!
 
 Here, you create a function, /error-message/, which accepts a single argument,
 /severity/, and uses that to determine which string to return. You then call the
@@ -372,12 +349,11 @@ protagonist name at index 0:
   failed_protagonis_names[0] = "Garry Potter"
 
   puts failed_protagonis_names
-#+END_SRC
 
-#+RESULTS:
-: Garry Potter
-: Doreen the Explorer
-: The Incredible Bulk
+  # => Garry Potter
+  # => Doreen the Explorer
+  # => The Incredible Bulk
+#+END_SRC
 
 Clojure has no equivalent for this. You'll learn more about why Clojure was
 implemented this way in Chapter 10.
@@ -411,12 +387,10 @@ of string literals:
   "\"He who must be named\""
   "\"Great cow of Moscow!\" - Hermes Conrad"
 
-  ;; not a valid strings
-  ;; 'Lord Voldemort'
+  ;; => not a valid strings
+  ;; => 'Lord Voldemort'
+  ;; => "Great cow of Moscow!" - Hermes Conrad
 #+end_src
-
-#+RESULTS:
-: "Great cow of Moscow!" - Hermes Conrad
 
 Notice that Clojure only allows double quotes to delineate strings. 'lord
 Voldemort' for example, is not a valid strings. Also notice that Clojure doesn't
@@ -426,18 +400,16 @@ function.
 #+begin_src clojure :result output :exports both eval: never-export
   (def name "Chewbaca")
   (str "\"Uggllglglglglglglglll\" - " name)
-#+end_src
 
-#+RESULTS:
-: "Uggllglglglglglglglll" - Chewbaca
+  ;; => "Uggllglglglglglglglll" - Chewbaca
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (def name2 "Chewbaca")
   (str "\"ewww weeeeee \" - " name2)
-#+end_src
 
-#+RESULTS:
-: "ewww weeeeee " - Chewbaca
+  ;; => "ewww weeeeee " - Chewbaca
+#+end_src
 
 ** Maps
 
@@ -450,15 +422,10 @@ Let's look at some example of map literals. Here's an empty maps:
   {}
 #+end_src
 
-#+RESULTS:
-: {}
-
 #+begin_src clojure :result output :exports both eval: never-export
   (type {})
+  ;; => clojure.lang.PersistentArrayMap
 #+end_src
-
-#+RESULTS:
-: clojure.lang.PersistentArrayMap
 
 In this example, \:first-name\ and \:last-name\ are keywords (I'll cover those
 in the next section):
@@ -466,26 +433,24 @@ in the next section):
 #+begin_src clojure :result output :exports both eval: never-export
   {:first-name "Charlie"
    :last-name "McFishwich"}
-#+end_src
 
-#+RESULTS:
-: {:first-name "Charlie", :last-name "McFishwich"}
+  ;; => {:first-name "Charlie", :last-name "McFishwich"}
+#+end_src
 
 Here associate "string-key" with the + function:
 
 #+begin_src clojure :result output :exports both eval: never-export
   {"string-key"  +} ; the result is JVM object string
-#+end_src
 
-#+RESULTS:
-: {"string-key" #object[clojure.core$_PLUS_ 0x64a896b0 "clojure.core$_PLUS_@64a896b0"]}
+  ;; => {"string-key" #object[clojure.core$_PLUS_ 0x64a896b0
+  ;; "clojure.core$_PLUS_@64a896b0"]}
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   {"string-key"  (var +)} ; print human-freindly
-#+end_src
 
-#+RESULTS:
-: {"string-key" #'clojure.core/+}
+  ;; => {"string-key" #'clojure.core/+}
+#+end_src
 
 *** Nested Map
 
@@ -493,10 +458,9 @@ Maps can be nested:
 
 #+begin_src clojure :result output :exports both eval: never-export
   {:name {:first "john" :middle "jacob" :last "jingleheimerschmidt"}}
-#+end_src
 
-#+results:
-: {:name {:first "john", :middle "jacob", :last "jingleheimerschmidt"}}
+  ;; => {:name {:first "john", :middle "jacob", :last "jingleheimerschmidt"}}
+#+end_src
 
 notice that map value can be of any type--strings, numbers, maps, vectors, even
 functions. Clojure doesn't care!
@@ -507,10 +471,9 @@ Besides using map literals, you can use the hash-map function to create a map:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (hash-map :a 1 :b 2)
-#+end_src
 
-#+RESULTS:
-: {:b 2, :a 1}
+  ;; => {:b 2, :a 1}
+#+end_src
 
 *** /get/
 
@@ -518,17 +481,15 @@ You can look up values in maps with the /get/ functions:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get {:a 0 :b 1} :b)
-#+end_src
 
-#+RESULTS:
-: 1
+  ;; => 1
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get {:a 0 :b {:c "Ho Hum"}} :b)
-#+end_src
 
-#+RESULTS:
-: {:c "Ho Hum"}
+  ;; => {:c "Ho Hum"}
+#+end_src
 
 In both of these examples, we asked for the value of the /:b/ key in the given
 map--in the first case it return 1, and in the second case it return the nested
@@ -539,17 +500,15 @@ value to return, such as "unicorns?":
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get {:a 0 :b 1} :c)
-#+end_src
 
-#+RESULTS:
-: nil
+  ;; => nil
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get {:a 0 :b 1} :c "unicorns?")
-#+end_src
 
-#+RESULTS:
-: unicorns?
+  ;; => unicorns?
+#+end_src
 
 *** /get-in/
 
@@ -557,10 +516,9 @@ The /get-in/ function lets you look up values in nested maps:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get-in {:a 0 :b {:c "Ho Hum"}} [:b :c])
-#+end_src
 
-#+RESULTS:
-: Ho Hum
+  ;; => Ho Hum
+#+end_src
 
 *** maps as a function
 
@@ -569,10 +527,9 @@ the key as its argument:
 
 #+begin_src clojure :result output :exports both eval: never-export
   ({:name "The Human Coffepot"} :name)
-#+end_src
 
-#+RESULTS:
-: The Human Coffepot
+  ;; => The Human Coffepot
+#+end_src
 
 Another thin you can do with the maps is use keywords as functions to look up
 their values, which leads to the next subject, keywords.
@@ -590,91 +547,81 @@ some more example of keywords:
   :_?
 #+end_src
 
-#+RESULTS:
-: :_?
-
 Keywords can be used as functions that look up the corresponding value in a data
 structure. For example, you can look up :a in a map:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (:a {:a 1 :b 2 :c 3})
-#+end_src
 
-#+RESULTS:
-: 1
+  ;; => 1
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
-  ({:a 1 :b 2 :c 3} :a)
-#+end_src
+  ({:a 1 :b 2 :c 3} :b)
 
-#+RESULTS:
-: 1
+  ;; => 2
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   ({:a 1 :b 2 :c 3} :d)
-#+end_src
 
-#+RESULTS:
-: nil
+  ;; => nil
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   ({:a 1 :b 2 :c 3} :d "embedded value")
-#+end_src
 
-#+RESULTS:
-: embedded value
+  ;; => embedded value
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   ;;  :d is nil
   (:d {:a 1 :b 2 :c 3})
-#+end_src
 
-#+RESULTS:
+  ;; => nil
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (:d {:a 1 :b 2 :c {:d "embedded value"}})
-#+end_src
 
-#+RESULTS:
-: nil
+  ;; => nil
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (:c {:a 1 :b 2 :c {:d "embedded value"}})
-#+end_src
 
-#+RESULTS:
-: {:d "embedded value"}
+  ;; => {:d "embedded value"}
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get-in {:a 1 :b 2 :c {:d "embedded value"}} [:c :d])
-#+end_src
 
-#+RESULTS:
-: embedded value
+  ;; => embedded value
+#+end_src
 
 back to original example:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (:a {:a 1 :b 2 :c 3})
+
+  ;; => 1
 #+end_src
 
 This equivalent to:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get {:a 1 :b 2 :c 3} :a)
-#+end_src
 
-#+RESULTS:
-: 1
+  ;; => 1
+#+end_src
 
 You can provide a default value, as with get:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (:d {:a 1 :b 2 :c 3} "No gnome knows home like Noah knows")
-#+end_src
 
-#+RESULTS:
-: No gnome knows home like Noah knows
+  ;; => No gnome knows home like Noah knows
+#+end_src
 
 Using a keywords as a function is pleasantly succinct, and Real Clojurist do it
 all the time. You should do it too!.
@@ -686,28 +633,22 @@ example, here's a vector literal:
 
 #+begin_src clojure :result output :exports both eval: never-export
   [3 2 1]
+  ;; => [3 2 1]
 #+end_src
-
-#+RESULTS:
-: [3 2 1]
 
 Here we're returning the 0th element for the vector:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get [3 2 1] 0)
+  ;; => 3
 #+end_src
-
-#+RESULTS:
-: 3
 
 Here's another example of getting by index:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get ["a" {:name "Pugsley Winterbottom"} "c"] 1)
+  ;; =>{:name "Pugsley Winterbottom"}
 #+end_src
-
-#+RESULTS:
-: {:name "Pugsley Winterbottom"}
 
 You can see that vector elements can be of any type, and you can mix types. Also
 notice that we're using the same get function as we use when looking up values
@@ -717,20 +658,18 @@ You can create vectors with the vector function:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (vector "creepy" "full" "moon")
-#+end_src
 
-#+RESULTS:
-: ["creepy" "full" "moon"]
+  ;; => ["creepy" "full" "moon"]
+#+end_src
 
 You can use the /conj/ function to add additional elements to the vector.
 Elements are added to the /end/ of a vector:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (conj [1 2 3] 4)
-#+end_src
 
-#+RESULTS:
-: [1 2 3 4]
+  ;; => [1 2 3 4]
+#+end_src
 
 Vectors aren't the only way to store sequences; Clojure also as /lists/.
 
@@ -743,32 +682,27 @@ single quote at the beginning:
 
 #+begin_src clojure :result output :exports both eval: never-export
   '(1 2 3 4)
-#+end_src
 
-#+RESULTS:
-: (1 2 3 4)
+  ;; => (1 2 3 4)
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (type '( ))
-#+end_src
 
-#+RESULTS:
-: clojure.lang.PersistentList$EmptyList
+  ;; => clojure.lang.PersistentList$EmptyList
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (type '[1 2 3 4])
-#+end_src
 
-#+RESULTS:
-: clojure.lang.PersistentVector
+  ;; => clojure.lang.PersistentVector
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (type [1 2 3 4])
+
+  ;; => clojure.lang.PersistentVector
 #+end_src
-
-#+RESULTS:
-: clojure.lang.PersistentVector
-
 
 Both [1 2 3 4] and '[1 2 3 4] are vectors (clojure.lang.PersistentVector). The
 quote ' only really matters when the form could be evaluated (like lists,
@@ -780,17 +714,15 @@ an element from a list, you can use the /nth/ function:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (nth '(:a :b :c) 0)
-#+end_src
 
-#+RESULTS:
-: :a
+  ;; => :a
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (nth '(:a :b :c) 2)
-#+end_src
 
-#+RESULTS:
-: :c
+  ;; => :c
+#+end_src
 
 I don't cover performance in detail in this book because I don't think it's
 useful to focus on it until after you've become familiar with a language.
@@ -805,19 +737,17 @@ function:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (list 1 "two" {3 4})
-#+end_src
 
-#+RESULTS:
-: (1 "two" {3 4})
+  ;; => (1 "two" {3 4})
+#+end_src
 
 Element are added to the /beginning/ of a list:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (conj '(1 2 3) 4)
-#+end_src
 
-#+RESULTS:
-: (4 1 2 3)
+  ;; => (4 1 2 3)
+#+end_src
 
 When should you use a list and when you should use a vector? A good rule of
 thumb is that if you need to easily add items to the beginning of a sequence or
@@ -832,26 +762,23 @@ the literal notation for a hash set:
 
 #+begin_src clojure :result output :exports both eval: never-export
   #{"kurt vonnegut" 20 :icicle}
-#+end_src
 
-#+RESULTS:
-: #{20 :icicle "kurt vonnegut"}
+  ;; => #{20 :icicle "kurt vonnegut"}
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
-(type  #{})
-#+end_src
+  (type  #{})
 
-#+RESULTS:
-: clojure.lang.PersistentHashSet
+  ;; => clojure.lang.PersistentHashSet
+#+end_src
 
 You can also use /hash-set/ to create a set:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(hash-set 1 1 2 2)
-#+end_src
+  (hash-set 1 1 2 2)
 
-#+RESULTS:
-: #{1 2}
+  ;; => #{1 2}
+#+end_src
 
 Note that multiple instances of a value become one unique value in the set, so
 we're left with a single 1 and a single 2. If you try to add a value to a set
@@ -859,44 +786,39 @@ that already contain that value (such as :b in the following code), it will
 still have only one of that value:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(conj #{:a :b} :b)
-#+end_src
+  (conj #{:a :b} :b)
 
-#+RESULTS:
-: #{:b :a}
+  ;; => #{:b :a}
+#+end_src
 
 You can also create a sets from existing vectors and list by using the /set/
 function:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (set [3 3 3 4 4])
-#+end_src
 
-#+RESULTS:
-: #{4 3}
+  ;; => #{4 3}
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (set {:first-name "Charlie"
         :last-name "McFishwich"})
-#+end_src
 
-#+RESULTS:
-: #{[:first-name "Charlie"] [:last-name "McFishwich"]}
+  ;; => #{[:first-name "Charlie"] [:last-name "McFishwich"]}
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (type  (set {:first-name "Charlie"
                :last-name "McFishwich"}))
-#+end_src
 
-#+RESULTS:
-: clojure.lang.PersistentHashSet
+  ;; => clojure.lang.PersistentHashSet
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (type #{[:first-name "Charlie"] [:last-name "McFishwich"]})
-#+end_src
 
-#+RESULTS:
-: clojure.lang.PersistentHashSet
+  ;; => clojure.lang.PersistentHashSet
+#+end_src
 
 You can check for set membership using the /contains?/ function, by using /get/,
 or by using a keyword as a function with the set as its argument. /contains?/
@@ -906,77 +828,69 @@ value if it exists, or /nil/ if it doesn't.
 Here how you'd use /contains?/
 
 #+begin_src clojure :result output :exports both eval: never-export
-  (contains? #{[:first-name "Charlie"] [:last-name "McFishwich"]} [:first-name "Charlie"])
-#+end_src
+  (contains? #{[:first-name "Charlie"] [:last-name "McFishwich"]}
+             [:first-name "Charlie"])
 
-#+RESULTS:
-: true
+  ;; => true
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (type [:first-name "Charlie"])
-#+end_src
 
-#+RESULTS:
-: clojure.lang.PersistentVector
+  ;; => clojure.lang.PersistentVector
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (contains? #{:a :b} :a)
-#+end_src
 
-#+RESULTS:
-: true
+  ;; => true
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
-  (contains? #(:a :b) 3)
-#+end_src
+  (contains? #(:a :b 3) 3)
 
-#+RESULTS:
+  ;; => error
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (contains? #{nil} nil)
-#+end_src
 
-#+RESULTS:
-: true
+  ;; => true
+#+end_src
 
 Here how you'd use a /keyword/:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (:a #{:a :b})
-#+end_src
 
-#+RESULTS:
-: :a
+  ;; => :a
+#+end_src
 
 And here's how you'd use /get/:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get #{:a :b} :a)
-#+end_src
 
-#+RESULTS:
-: :a
+  ;; => :a
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get #{:a :b} :nil)
-#+end_src
 
-#+RESULTS:
-: nil
+  ;; => nil
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get #{:a :nil} :nil)
-#+end_src
 
-#+RESULTS:
-: :nil
+  ;; => :nil
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (get #{:a :b} "Kurt Vonnegut")
-#+end_src
 
-#+RESULTS:
-: nil
+  ;; => nil
+#+end_src
 
 Notice that using /get/ to test whether a set contains /nil/ will always return
 nil, which is confusing. /contains?/ may be the better option when you're
@@ -1031,11 +945,11 @@ By now you've seen many examples of function calls:
 #+begin_src clojure :result output :exports both eval: never-export
   (+ 1 2 3 4)
   (* 1 2 3 4)
-  (first [1 2 3 4])
-#+end_src
 
-#+RESULTS:
-: 1
+  (first [1 2 3 4])
+
+  ;; => 1
+#+end_src
 
 Remember that all Clojure operations have the same syntax: opening parenthesis,
 operator, operands,closing parenthesis. /Function calls/ is just another term
@@ -1047,10 +961,9 @@ that returns the + (addition) function:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (or + -)
-#+end_src
 
-#+RESULTS:
-: #object[clojure.core$_PLUS_ 0x64a896b0 "clojure.core$_PLUS_@64a896b0"]
+  ;; => #object[clojure.core$_PLUS_ 0x64a896b0 "clojure.core$_PLUS_@64a896b0"]
+#+end_src
 
 That return value is the string representation of the addition function. Because
 the return value of /or/ is the first truthy value, and here the addition
@@ -1059,10 +972,9 @@ expression as the operator in another expression:
 
 #+begin_src clojure :result output :exports both eval: never-export
   ((or + -) 1 2 3)
-#+end_src
 
-#+RESULTS:
-: 6
+  ;; => 6
+#+end_src
 
 Because (or + -) return +, this expression evaluates to the /sum/ of 1, 2 and 3,
 returning 6.
@@ -1071,37 +983,38 @@ Here are a couple more valid function calls that each return 6:
 
 #+begin_src clojure :result output :exports both eval: never-export
   ((and (= 1 1) +) 1 2 3)
-#+end_src
 
-#+RESULTS:
-: 6
+  ;; => 6
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   ((first [+ 0]) 1 2 3)
+
+  ;; => 6
 #+end_src
 
-#+RESULTS:
-: 6
+In the first example, the return value of /and/ is the first falsey value or the
+last truthy value. In this case, + is returned because it's the last truthy
+value, ans is then applied to the arguments 1 2 3, returning 6.
 
-In the first example, the return value of /and/ is the first falsey value or the last truthy value. In this case, + is returned because it's the last truthy value, ans is then applied to the arguments 1 2 3, returning 6.
+In the second example, the return value of /first/ is the first element in a
+sequence, which is + in this case.
 
-In the second example, the return value of /first/ is the first element in a sequence, which is + in this case.
-
-However,these aren't valid function calls, because numbers and strings aren't functions:
+However,these aren't valid function calls, because numbers and strings aren't
+functions:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(1 2 3 4)
-#+end_src
+  (1 2 3 4)
 
-#+RESULTS:
-: Unhandled java.lang.ClassCastException
+  ;; => Unhandled java.lang.ClassCastException
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
-("test" 2 3 4)
-#+end_src
+  ("test" 2 3 4)
 
-#+RESULTS:
-: Execution error (ClassCastException) at user/eval1$fn (clojure-cmd-script-v3CMFT.clj:1).
+  ;; => Execution error (ClassCastException) at user/eval1$fn
+  ;; => (clojure-cmd-script-v3CMFT.clj:1).
+#+end_src
 
 You're likely to see this error many times as you continue with Clojure: /<x>
 cannot be cast to clojure.lang.IFn/ just means that you're trying to us
@@ -1120,18 +1033,16 @@ instance. /map/ creates a new list by applying a function to each member of a
 collection. Here, the /inc/ function increments a number by 1:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(inc 1.1)
-#+end_src
+  (inc 1.1)
 
-#+RESULTS:
-: 2.1
+  ;; => 2.1
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
-(map inc [0 1 2 3])
-#+end_src
+  (map inc [0 1 2 3])
 
-#+RESULTS:
-: (1 2 3 4)
+  ;; => (1 2 3 4)
+#+end_src
 
 (Note that /map/ doesn't return vector, even thought we supplied a vector as an
 argument. You'll learn why in Chapter 4. For now, just trust that this is okay
@@ -1155,26 +1066,19 @@ function calls:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (+ (inc 199) (/ 100 (- 7 2)))
-#+end_src
 
-#+RESULTS:
-: 220
+  ;; => 220
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   ;; evaluated "(inc 199)"
    (+ 200 (/ 100 (- 7 2)))
 #+end_src
 
-#+RESULTS:
-: 220
-
 #+begin_src clojure :result output :exports both eval: never-export
   ;; evaluated (- 7 2)
   (+ 200 (/ 100 5))
 #+end_src
-
-#+RESULTS:
-: 220
 
 #+begin_src clojure :result output :exports both eval: never-export
   ;; evaluated (/ 100 5)
@@ -1182,9 +1086,6 @@ function calls:
 
   ;; final result 200
 #+end_src
-
-#+RESULTS:
-: 220
 
 The function call kick off the evaluation process, and all subform are evaluated
 before applying the + function.
@@ -1248,10 +1149,10 @@ Functions definitions are composed of five main parts:
            "MAN SLASH WOMAN EVER I LOVE YOU AND WE SHOULD RUN AWAY SOMEWHERE"))
 
     (too-enthuaiastic "Zelda")
-  #+end_src
 
-  #+RESULTS:
-  : OH. MY. GOD! Zelda YOU ARE MOST DEFINITELY LIKE THE BEST MAN SLASH WOMAN EVER I LOVE YOU AND WE SHOULD RUN AWAY SOMEWHERE
+    ;; => OH. MY. GOD! Zelda YOU ARE MOST DEFINITELY LIKE THE BEST MAN
+    ;; SLASH WOMAN EVER I LOVE YOU AND WE SHOULD RUN AWAY SOMEWHERE
+  #+end_src
 
   Let's break each line. at (L1), /too-enthusiastic/ is the name of the
   function, and it's followed by a descriptive docstrings (L2). The paremeter,
@@ -1279,29 +1180,25 @@ definitions with different arities:
   (defn no-params
     []
     "I take no paremeters")
-#+end_src
 
-#+RESULTS:
-: #'user/no-params
+  ;; => #'user/no-params
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (defn one-param
     [x]
     "I take no paremeters: " x)
-#+end_src
 
-#+RESULTS:
-: #'user/one-param
+  ;; => #'user/one-param
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (defn two-params
     [x y]
     (str "Two Parameters! That's noting Pah! I will smoosh them "
          "together to spite you! " y))
+  ;; => #'user/two-params
 #+end_src
-
-#+RESULTS:
-: #'user/two-params
 
 In these examples, /no-params/ is a 0-arity function, /one-param/ is 1-arity,
 and /two-params/ is 2-arity.
@@ -1336,10 +1233,9 @@ parameter:
      (str "I " chop-type " chop " name "! Take that!"))
     ([name]
     (x-chop name "karate")))
-#+end_src
 
-#+RESULTS:
-: #'user/x-chop
+  ;; => #'user/x-chop
+#+end_src
 
 If you call /x-chop/ with two arguments, the function works just as it would, if
 it weren't a multiple-arity function:
@@ -1353,10 +1249,9 @@ it weren't a multiple-arity function:
      (x-chop name "karate")))
 
   (x-chop "Kanye West" "slap")
-#+end_src
 
-#+RESULTS:
-: I slap chop Kanye West! Take that!
+  ;; => I slap chop Kanye West! Take that!
+#+end_src
 
 If you call /x-chop/ with only one argument, /x-chop/ will actually call itself
 with the second arguments "karate" supplied:
@@ -1370,10 +1265,9 @@ with the second arguments "karate" supplied:
      (x-chop name "karate")))
 
   (x-chop "Kanye East")
-#+end_src
 
-#+RESULTS:
-: I karate chop Kanye East! Take that!
+  ;; => I karate chop Kanye East! Take that!
+#+end_src
 
 It might seem unusual to define a function in terms of itself like this. If so,
 great! You're learning a new way to do thing!
@@ -1389,10 +1283,9 @@ You can also make each arity do something completely unrelated:
       unmentionables - the Tick")
     ([number]
      (inc number)))
-#+end_src
 
-#+RESULTS:
-: #'user/weird-arity
+  ;; => #'user/weird-arity
+#+end_src
 
 The 0-arity body return a wise quote, and the 1-arity body increments a number.
 Most likely, you wouldn't wan to write a function like this, because it would be
@@ -1403,20 +1296,19 @@ confusing to have two function bodies that are completely unrelated.
   (defn weird-arity
     ([]
      "Desitny dressed you this morning, my friend, and now Fear is trying to pull
-     off your pants. If you give up, if you give in, you're gonna end up naked
-     with Fear just standing there laughing at your dangling unmentionables - the
-     Tick")
+       off your pants. If you give up, if you give in, you're gonna end up naked
+       with Fear just standing there laughing at your dangling unmentionables - the
+       Tick")
     ([number]
      (inc number)))
 
   (weird-arity)
-#+end_src
 
-#+RESULTS:
-: Desitny dressed you this morning, my friend, and now Fear is trying to pull
-:    off your pants. If you give up, if you give in, you're gonna end up naked
-:    with Fear just standing there laughing at your dangling unmentionables - the
-:    Tick
+  ;; Desitny dressed you this morning, my friend, and now Fear is trying to pull
+  ;;  off your pants. If you give up, if you give in, you're gonna end up naked
+  ;;  with Fear just standing there laughing at your dangling unmentionables - the
+  ;;  Tick
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (defn weird-arity
@@ -1429,10 +1321,9 @@ confusing to have two function bodies that are completely unrelated.
      (inc number)))
 
   (weird-arity 3)
-#+end_src
 
-#+RESULTS:
-: 4
+  ;; => 4
+#+end_src
 
 Clojure also allows you to define variable-arity function by including a /rest
 parameter/, as in "put the rest of these arguments in a list with the following
@@ -1449,10 +1340,9 @@ name". The rest parameter is indicated by an ampersand (&), as shown at (L-1)
 
   (codger "Billy" "Anne-Marie" "The Incredible Bulk")
 
+  ;; => ("Get off my lawn, Billy!!!" "Get off my lawn, Anne-Marie!!!"
+  ;; "Get off my lawn, The Incredible Bulk!!!")
 #+end_src
-
-#+RESULTS:
-: ("Get off my lawn, Billy!!!" "Get off my lawn, Anne-Marie!!!" "Get off my lawn, The Incredible Bulk!!!")
 
 As you can see, when you provide arguments to variable-arity functions, the
 arguments are treated as a list. You can mix rest parameters with normal
@@ -1465,10 +1355,9 @@ parameters, but the rest parameter has to come last:
          (clojure.string/join ", " things)))
 
   (favorite-things "Doren" "gum" "shoes" "kara-te")
-#+end_src
 
-#+RESULTS:
-: Hi, Doren, here are my favorite things: gum, shoes, kara-te
+  ;; => Hi, Doren, here are my favorite things: gum, shoes, kara-te
+#+end_src
 
 Finally, Clojure has a more sophisticated way of defining parameters, called
 /destructuring/ which deserves its own subsection.
@@ -1479,15 +1368,14 @@ The Basic idea behind destructuring is that it lest you concisely bind names to
 values within a collection. Let's look at a basic example:
 
 #+begin_src clojure :result output :exports both eval: never-export
-  (defn my-first
-    [[first-thing]] ;; Notice that the first-things within a vector
-    first-thing)
+    (defn my-first
+      [[first-thing]] ;; Notice that the first-things within a vector
+      first-thing)
 
-(my-first ["oven" "bike" "war-exe"])
+  (my-first ["oven" "bike" "war-exe"])
+
+  ;; => oven
 #+end_src
-
-#+RESULTS:
-: oven
 
 Here, the /my-first/ function associates the symbol /first-thing/ with the first
 element of the vector that was passed in as an argument. You'll tell /my-first/
@@ -1509,13 +1397,13 @@ parameters:
                   "here they are in case you need to cry over "
                   (clojure.string/join ", " unimportant-choices))))
 
-(chooser ["Marmalade", "Handsome Jack", "Pigpen", "Aquaman"])
-#+end_src
+  (chooser ["Marmalade", "Handsome Jack", "Pigpen", "Aquaman"])
 
-#+RESULTS:
-: Your first choice is: Marmalade
-: Your second choice is: Handsome Jack
-: We're ignoring the rset of your choices. here they are in case you need to cry over Pigpen, Aquaman
+  ;; => Your first choice is: Marmalade
+  ;; => Your second choice is: Handsome Jack
+  ;; => We're ignoring the rset of your choices. here they are in case you need
+  ;; => to cry over Pigpen, Aquaman
+#+end_src
 
 Here. the rest parameter /unimportant-choices/ handles any number of additional
 choices from the user after the first and second.
@@ -1531,12 +1419,11 @@ desctructure maps by providing a map as a parameter:
     (println (str "Treasure lng: " lng)))
 
   (annouce-treasure-location {:lat 28.22 :lng 81.23})
-#+end_src
 
-#+RESULTS:
-: Treasure lat: 28.22
-: Treasure lng: 81.23
-: nil  ;; the function itself return nil.
+  ;; => Treasure lat: 28.22
+  ;; => Treasure lng: 81.23
+  ;; => nil  ;; the function itself return nil.
+#+end_src
 
 Let's look at the line (L-1) in more detail. This is like telling Clojure, "Yo!
 Clojure! Do me a flava and associate the name /lat/ with the value corresponding
@@ -1552,6 +1439,8 @@ for that. This is the same result as the previous example:
     (println (str "Treasure lng: " lng)))
 
   (annouce-treasure-location {:lat 28.22 :lng 81.23})
+
+  ;; => nil
 #+end_src
 
 You can see access to the original map argument by using the /:as/ keywords. In the following example, the original map is accessed with treasure-location:
@@ -1564,13 +1453,12 @@ You can see access to the original map argument by using the /:as/ keywords. In 
     (println (str "Full treasure location: " treasure-location)))
 
   (announce-treasure-location {:lat 28.22 :lng 81.23})
-#+end_src
 
-#+RESULTS:
-: Treasure lat: 28.22
-: Treasure lng: 81.23
-: Full treasure location: {:lat 28.22, :lng 81.23}
-: nil
+  ;; Treasure lat: 28.22
+  ;; Treasure lng: 81.23
+  ;; Full treasure location: {:lat 28.22, :lng 81.23}
+  ;; nil
+#+end_src
 
 In general, you can think of destructuring as instructing Clojure on how to
 associate names with values in a list, map, set, or vector. Now on tho the part
@@ -1589,10 +1477,9 @@ the last form evaluated. This function body contains just three forms, and when 
     "joe")
 
   (illustrative-function)
-#+end_src
 
-#+RESULTS:
-: joe
+  ;; => joe
+#+end_src
 
 Here is another function body, which uses an /if/ expression:
 
@@ -1602,14 +1489,14 @@ Here is another function body, which uses an /if/ expression:
     (if (> x 6)
       "Oh my gosh! What a big number!"
       "That number's OK, I guess")
-)
+    )
 
   (number-comment 5)
-  (number-comment 7)
-#+end_src
+  ;; => That number's OK, I guess
 
-#+RESULTS:
-: Oh my gosh! What a big number!
+  (number-comment 7)
+  ;; : Oh my gosh! What a big number!
+#+end_src
 
 ** All function Are Created Equal
 
@@ -1644,17 +1531,14 @@ Looks a lot like /defn/, doesn't it? Let's try a couple examples:
 #+begin_src clojure :result output :exports both eval: never-export
   (map (fn [name] (str "Hi, " name))
        ["Darth Vader" "Mr. Magoo"])
-#+end_src
 
-#+RESULTS:
-: ("Hi, Darth Vader" "Hi, Mr. Magoo")
+  ;; => ("Hi, Darth Vader" "Hi, Mr. Magoo")
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
-((fn [x] (* x 3)) 8)
+  ((fn [x] (* x 3)) 8)
+  ;; => 24
 #+end_src
-
-#+RESULTS:
-: 24
 
 You can treat /fn/ nearly identically to the way you treat /defn/. The parameter lists and function bodies work exactly the same. You can us argument destructuring, rest parameters, and so on. You could even associate your anonymous function with a name, which shouldn't come as a surprise (if that does  come as a surprise,  then ... Surprise!):
 
@@ -1662,41 +1546,39 @@ You can treat /fn/ nearly identically to the way you treat /defn/. The parameter
   (def my-special-multiplier (fn [x] (* x 3)))
 
   (my-special-multiplier 12)
+
+  ;; =>  36
 #+end_src
 
-#+RESULTS:
-: 36
-
-Clojure also offers another, more compact way to create anonymous functions. Here's what an anonymous function looks like:
+Clojure also offers another, more compact way to create anonymous functions.
+Here's what an anonymous function looks like:
 
 #+begin_src clojure :result output :exports both eval: never-export
-#(* % 3)
-#+end_src
+  #(* % 3)
+ #+end_src
 
 Whoa, that looks weird. Go ahead and apply that weird-looking function:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(#(* % 3) 8)
+  (#(* % 3) 8)
+  ;; => 24
 #+end_src
-
-#+RESULTS:
-: 24
 
 Here's an example of passing an anonymous function as an argument to map:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (map #(str "Hi, " %)
        ["Darth Vader" "Mr. Magoo"])
+  ;; => ("Hi, Darth Vader" "Hi, Mr. Magoo")
 #+end_src
-
-#+RESULTS:
-: ("Hi, Darth Vader" "Hi, Mr. Magoo")
 
 This strange-looking style of writing anonymous functions is made possible by a
 feature called /reader macros/. You'll learn all about in Chapter 7. Right now,
 it's okay to learn how to use just these anonymous functions.
 
-You can see that this syntax is definitely more compact, but it's also a little odd. Let's break it down. This kind of anonymous function looks a lot like a function call, except that it's preceded by a hash mark, /#/:
+You can see that this syntax is definitely more compact, but it's also a little
+odd. Let's break it down. This kind of anonymous function looks a lot like a
+function call, except that it's preceded by a hash mark, /#/:
 
 #+begin_src clojure :result output :exports both eval: never-export
   ;; Function call
@@ -1716,20 +1598,17 @@ can distinguish them like this: /%1, %2, %3/, and so on. /%/ is equivalent to
 /%1/.
 
 #+begin_src clojure :result output :exports both eval: never-export
-(#(str %1 " and " %2) "cornbread" "butter beans")
+  (#(str %1 " and " %2) "cornbread" "butter beans")
+  ;; => cornbread and butter beans
 #+end_src
-
-#+RESULTS:
-: cornbread and butter beans
 
 You can also pass a rest parameter with /%&/:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(#(identity %&) 1 "blarg" :yip)
-#+end_src
+  (#(identity %&) 1 "blarg" :yip)
 
-#+results:
-: (1 "blarg" :yip)
+  ;; => (1 "blarg" :yip)
+#+end_src
 
 in this case, you applied the identity function to the rest argument. identity
 returns the argument it's given without altering it. rest arguments are stored
@@ -1755,17 +1634,15 @@ were in scope when the function was created. Here's standard example:
   (def inc3 (inc-maker 3))
 
   (inc3 7)
+  ;; 10
 #+end_src
-
-#+results:
-: 10
 
 here, /inc-by/ is in scope, so the returned function has access to it even when
 the returned function is used outside /inc-maker/.
 
-n* pulling it all together
+now pulling it all together
 
-okay1, it's time to use your newfound knowledge for a noble purpose: smackinf
+okay, it's time to use your newfound knowledge for a noble purpose: smackinf
 around hobbits! to hit a hobbit, you'll first model its body parts. each body
 part will include its relative size to indicate how likely it is that part will
 be hit. to avoid repetition, the hobbit model will include only entries for
@@ -1828,86 +1705,87 @@ But don't worry, because we'll examine it in great detail.
           (recur remaining
                  (into final-body-parts
                        (set [part (matching-part)])))))))
+
+  ;; => #'user/symmetrize-body-parts
 #+end_src
 
-#+RESULTS:
-: #'user/symmetrize-body-parts
 
 #+begin_src clojure :result output :exports both eval: never-export
-  (def asym-hobbit-body-parts [{:name "head"           :size 3}
-                               {:name "left-eye"       :size 1}
-                               {:name "left-ear"       :size 1}
-                               {:name "mouth"          :size 1}
-                               {:name "nose"           :size 1}
-                               {:name "neck"           :size 2}
-                               {:name "left-shoulder"  :size 3}
-                               {:name "left-upper-arm" :size 3}
-                               {:name "chest"          :size 10}
-                               {:name "back"           :size 10}
-                               {:name "left-forearm"   :size 3}
-                               {:name "abdomen"        :size 6}
-                               {:name "left-kidney"    :size 1}
-                               {:name "left-hand"      :size 2}
-                               {:name "left-knee"      :size 2}
-                               {:name "left-thigh"     :size 4}
-                               {:name "left-lower-leg" :size 3}
-                               {:name "left-achilles"  :size 1}
-                               {:name "left-foot"      :size 2}])
+    (def asym-hobbit-body-parts [{:name "head"           :size 3}
+                                 {:name "left-eye"       :size 1}
+                                 {:name "left-ear"       :size 1}
+                                 {:name "mouth"          :size 1}
+                                 {:name "nose"           :size 1}
+                                 {:name "neck"           :size 2}
+                                 {:name "left-shoulder"  :size 3}
+                                 {:name "left-upper-arm" :size 3}
+                                 {:name "chest"          :size 10}
+                                 {:name "back"           :size 10}
+                                 {:name "left-forearm"   :size 3}
+                                 {:name "abdomen"        :size 6}
+                                 {:name "left-kidney"    :size 1}
+                                 {:name "left-hand"      :size 2}
+                                 {:name "left-knee"      :size 2}
+                                 {:name "left-thigh"     :size 4}
+                                 {:name "left-lower-leg" :size 3}
+                                 {:name "left-achilles"  :size 1}
+                                 {:name "left-foot"      :size 2}])
 
-  (defn matching-part
-    [part]
-    {:name (clojure.string/replace (:name part) #"^left-" "right-")
-     :size (:size part)})
+    (defn matching-part
+      [part]
+      {:name (clojure.string/replace (:name part) #"^left-" "right-")
+       :size (:size part)})
 
-  (defn symmetrize-body-parts
-  "Expects a seq of maps that have a :name and :size"
-  [asym-body-parts]
-  (loop [remaining-asym-parts asym-body-parts
-         final-body-parts []]
-    (if (empty? remaining-asym-parts)
-      final-body-parts
-      (let [[part & remaining] remaining-asym-parts]
-        (if part  ; Check if part is not nil
-          (recur remaining
-                 (into final-body-parts
-                       (set [part (matching-part part)])))
-          (recur remaining final-body-parts))))))
+    (defn symmetrize-body-parts
+    "Expects a seq of maps that have a :name and :size"
+    [asym-body-parts]
+    (loop [remaining-asym-parts asym-body-parts
+           final-body-parts []]
+      (if (empty? remaining-asym-parts)
+        final-body-parts
+        (let [[part & remaining] remaining-asym-parts]
+          (if part  ; Check if part is not nil
+            (recur remaining
+                   (into final-body-parts
+                         (set [part (matching-part part)])))
+            (recur remaining final-body-parts))))))
 
-  (symmetrize-body-parts asym-hobbit-body-parts)
+    (symmetrize-body-parts asym-hobbit-body-parts)
+
+  ;; => #'user/asym-hobbit-body-parts;; =>#'user/matching-part;;
+  ;; => #'user/symmetrize-body-parts;; =>[{:name "head", :size 3}
+  ;; =>  {:name "left-eye", :size 1}
+  ;; =>  {:name "right-eye", :size 1}
+  ;; =>  {:name "left-ear", :size 1}
+  ;; =>  {:name "right-ear", :size 1}
+  ;; =>  {:name "mouth", :size 1}
+  ;; =>  {:name "nose", :size 1}
+  ;; =>  {:name "neck", :size 2}
+  ;; =>  {:name "left-shoulder", :size 3}
+  ;; =>  {:name "right-shoulder", :size 3}
+  ;; =>  {:name "right-upper-arm", :size 3}
+  ;; =>  {:name "left-upper-arm", :size 3}
+  ;; =>  {:name "chest", :size 10}
+  ;; =>  {:name "back", :size 10}
+  ;; =>  {:name "left-forearm", :size 3}
+  ;; =>  {:name "right-forearm", :size 3}
+  ;; =>  {:name "abdomen", :size 6}
+  ;; =>  {:name "left-kidney", :size 1}
+  ;; =>  {:name "right-kidney", :size 1}
+  ;; =>  {:name "left-hand", :size 2}
+  ;; =>  {:name "right-hand", :size 2}
+  ;; =>  {:name "right-knee", :size 2}
+  ;; =>  {:name "left-knee", :size 2}
+  ;; =>  {:name "right-thigh", :size 4}
+  ;; =>  {:name "left-thigh", :size 4}
+  ;; =>  {:name "right-lower-leg", :size 3}
+  ;; =>  {:name "left-lower-leg", :size 3}
+  ;; =>  {:name "right-achilles", :size 1}
+  ;; =>  {:name "left-achilles", :size 1}
+  ;; =>  {:name "right-foot", :size 2}
+  ;; =>  {:name "left-foot", :size 2}]
+
 #+end_src
-
-#+RESULTS:
-: ; =>#'user/asym-hobbit-body-parts;; =>#'user/matching-part;; =>#'user/symmetrize-body-parts;; =>[{:name "head", :size 3}
-: {:name "left-eye", :size 1}
-: {:name "right-eye", :size 1}
-: {:name "left-ear", :size 1}
-: {:name "right-ear", :size 1}
-: {:name "mouth", :size 1}
-: {:name "nose", :size 1}
-: {:name "neck", :size 2}
-: {:name "left-shoulder", :size 3}
-: {:name "right-shoulder", :size 3}
-: {:name "right-upper-arm", :size 3}
-: {:name "left-upper-arm", :size 3}
-: {:name "chest", :size 10}
-: {:name "back", :size 10}
-: {:name "left-forearm", :size 3}
-: {:name "right-forearm", :size 3}
-: {:name "abdomen", :size 6}
-: {:name "left-kidney", :size 1}
-: {:name "right-kidney", :size 1}
-: {:name "left-hand", :size 2}
-: {:name "right-hand", :size 2}
-: {:name "right-knee", :size 2}
-: {:name "left-knee", :size 2}
-: {:name "right-thigh", :size 4}
-: {:name "left-thigh", :size 4}
-: {:name "right-lower-leg", :size 3}
-: {:name "left-lower-leg", :size 3}
-: {:name "right-achilles", :size 1}
-: {:name "left-achilles", :size 1}
-: {:name "right-foot", :size 2}
-: {:name "left-foot", :size 2}]
 
 Let's break down this code!
 
@@ -1924,10 +1802,9 @@ which also a beautiful Beatles song about programming. Here's an example:
 #+begin_src clojure :result output :exports both eval: never-export
   (let [x 3]
     x)
-#+end_src
 
-#+RESULTS:
-: 3
+  ;; => 3
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (def dalmatian-list
@@ -1936,12 +1813,11 @@ which also a beautiful Beatles song about programming. Here's an example:
   (let [dalmatians (take 2 dalmatian-list)] dalmatians)
   (let [dalmatians (take 4 dalmatian-list)] dalmatians)
   (let [dalmatians (take 3 dalmatian-list)] dalmatians)
-#+end_src
 
-#+RESULTS:
-: ("Pongo" "Perdita")
-: ("Pongo" "Perdita" "Puppy 1" "Puppy 2")
-: ("Pongo" "Perdita" "Puppy 1")
+  ;; => ("Pongo" "Perdita")
+  ;; => ("Pongo" "Perdita" "Puppy 1" "Puppy 2")
+  ;; => ("Pongo" "Perdita" "Puppy 1")
+#+end_src
 
 in the first example, you bind the name /x/ to the value /3/. In the second, you
 bind the name /dalmatians/ to the result of the expression (take 2
@@ -1951,10 +1827,11 @@ new /scope/:
 #+begin_src clojure :result output :exports both eval: never-export
   (def x 0)
   (let [x 1] x)
+
+  ;; => 1
 #+end_src
 
-#+results:
-: 1
+
 
 Here, you first bind the name /x/ to the value 0 using /def/. Then, /let/
 creates a new scope in which the name /x/ is bound to the value /1/. I think of
@@ -1970,10 +1847,9 @@ You can reference existing bindings in your /let/ binding:
 #+begin_src clojure :result output :exports both eval: never-export
   (def x 0)
   (let [x (inc x)] x)
-#+end_src
 
-#+RESULTS:
-: 1
+  ;; => 1
+#+end_src
 
 In this example, the /x/ in /(inc x)/ refers to the binding created by /(def x
 0)/. The resulting value is /1/, which is then bound to the name /x/ within new
@@ -1988,11 +1864,9 @@ You ca also use rest parameters in /let/, just like you can in functions:
 
   (let [[pongo & dalmatians] dalmatian-list]
     [pongo dalmatians])
+
+  ;; => ["Pongo" ("Perdita" "Puppy 1" "Puppy 2")]
 #+end_src
-
-#+RESULTS:
-: ["Pongo" ("Perdita" "Puppy 1" "Puppy 2")]
-
 
 Notice that value of a /let/ form is the last form in its body that is
 evaluated. /let/ forms follow all the destructuring rules introduced in "Calling
@@ -2017,8 +1891,6 @@ understand exactly what's going on:
            (set [part (matching-part part)])))
 #+end_src
 
-#+RESULTS:
-
 This code tells Clojure, "Create a new scope. Within it, associate part with the
 first element of /remaining-asym-parts/. Associate /remaining/ with the rest of
 the elements in /remaining-asym-parts/".
@@ -2038,11 +1910,9 @@ elements of that /set/ to the vector /final-body-parts/ because /part/ and
 section on regular expressions. Here's a simplified example:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(into [] (set [:a :a]))
+  (into [] (set [:a :a]))
+  ;; => [:a]
 #+end_src
-
-#+RESULTS:
-: [:a]
 
 First, /(set [:a :a])/ returns the /set #{:a}/, because /sets/ don't contain
 duplicate elements. Then /(into [] #{:a})/ returns the vector /[:a]/.
@@ -2071,16 +1941,15 @@ way to do recursion in /Clojure. Let's look at a simple example:
     (if (> iteration 3)
       (println "Goodbye!")
       (recur (inc iteration))))
-  #+end_src
 
-#+RESULTS:
-: Iteration 0
-: Iteration 1
-: Iteration 2
-: Iteration 3
-: Iteration 4
-: Goodbye!
-: ;; =>nil
+  ;; => Iteration 0
+  ;; => Iteration 1
+  ;; => Iteration 2
+  ;; => Iteration 3
+  ;; => Iteration 4
+  ;; => Goodbye!
+  ;; => ;; =>nil
+#+end_src
 
 The first line, /loop [iteration 0]/, begins the loop and introduces a binding
 with an initial value. On the first pass through the loop, iteration has a value
@@ -2104,16 +1973,14 @@ definition:
        (recursive-printer (inc iteration)))))
 
   (recursive-printer)
+  ;; => 0
+  ;; => 1
+  ;; => 2
+  ;; => 3
+  ;; => 4
+  ;; => Goodby!
+  ;; => =>nil
 #+end_src
-
-#+RESULTS:
-: 0
-: 1
-: 2
-: 3
-: 4
-: Goodby!
-: ;; =>nil
 
 But as you can see, this is a bit more verbose. Also /loop has much better
 performance. In our symmetrizing function, we'll use /loop/ to go through each
@@ -2126,11 +1993,9 @@ literal notation for a regular expression is to place the expression in quotes
 after a has mark:
 
 #+begin_src clojure :result output :exports both eval: never-export
-#"regular-expression"
+  #"regular-expression"
+  ;; => #"regular-expression"
 #+end_src
-
-#+RESULTS:
-: #"regular-expression"
 
 In the function /matching-part/ in Listing-3-1, /clojure.string/replace/ uses
 the regular expression /"#^left-"/ to match strings starting with /"left-"/ in
@@ -2142,27 +2007,22 @@ the pattern described by a regular expression, returning the matched text or
 /nil/ if there is no match:
 
 #+begin_src clojure :result output :exports both eval: never-export
-(re-find #"^left-" "left-eye")
+  (re-find #"^left-" "left-eye")
+  ;; => left-
 #+end_src
-
-#+RESULTS:
-: left-
 
 #+begin_src clojure :result output :exports both eval: never-export
-(re-find #"^left-" "cleft-eye")
+  (re-find #"^left-" "cleft-eye")
+  ;; => nil
 #+end_src
-
-#+RESULTS:
-: nil
 
 #+begin_src clojure :result output :exports both eval: never-export
-(re-find #"^left-" "wongleblart")
+  (re-find #"^left-" "wongleblart")
+  ;; => nil
 #+end_src
 
-#+RESULTS:
-: nil
-
-Here are a couple of examples of /matching-part/ using a regex to replace /"left-"/ with /"right-"/:
+Here are a couple of examples of /matching-part/ using a regex to replace
+/"left-"/ with /"right-"/:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (defn matching-part
@@ -2171,10 +2031,9 @@ Here are a couple of examples of /matching-part/ using a regex to replace /"left
      :size (:size part)})
 
   (matching-part {:name "left-eye" :size 1})
-#+end_src
 
-#+RESULTS:
-: {:name "right-eye", :size 1}
+  ;; => {:name "right-eye", :size 1}
+#+end_src
 
 #+begin_src clojure :result output :exports both eval: never-export
   (defn matching-part
@@ -2183,10 +2042,9 @@ Here are a couple of examples of /matching-part/ using a regex to replace /"left
      :size (:size part)})
 
   (matching-part {:name "head" :size 1})
-#+end_src
 
-#+RESULTS:
-: {:name "head", :size 1}
+  ;; => {:name "head", :size 1}
+#+end_src
 
 Notice that the name "head" is returned as is.
 
@@ -2265,20 +2123,16 @@ example:
 #+begin_src clojure :result output :exports both eval: never-export
   ;; sum with reduce
   (reduce + [1 2 3 4])
+  ;; => 10
 #+end_src
-
-#+RESULTS:
-: 10
 
 This is like telling Clojure to do this:
 
 #+begin_src clojure :result output :exports both eval: never-export
   ;; sum with reduce
-(+ (+ (+ 1 2) 3) 4)
+  (+ (+ (+ 1 2) 3) 4)
+  ;; => 10
 #+end_src
-
-#+RESULTS:
-: 10
 
 The /reduce/ function works according to the following steps:
 
@@ -2295,10 +2149,8 @@ The /reduce/ function works according to the following steps:
 
 #+begin_src clojure :result output :exports both eval: never-export
   (reduce + 15 [1 2 3 4])
+  ;; => 25
 #+end_src
-
-#+RESULTS:
-: 25
 
 If you provide an initial value, /reduce/ starts by applying the given function
 to the initial value and the first of the sequence rather than the first two
@@ -2313,19 +2165,18 @@ built a result," which is agnostic about the type of result returned. To further
 understand how /reduce/ works, here's one way that you could implement it:
 
 #+begin_src clojure :result output :exports both eval: never-export
-    (defn my-reduce
-      ([f initial coll]
-       (loop [result initial
-              remaining coll]
-         (if (empty? remaining)
-           result
-           (recur (f result (first remaining)) (rest remaining)))))
-      ([f [head & tail]]
-       (my-reduce f head tail)))
-#+end_src
+  (defn my-reduce
+    ([f initial coll]
+     (loop [result initial
+            remaining coll]
+       (if (empty? remaining)
+         result
+         (recur (f result (first remaining)) (rest remaining)))))
+    ([f [head & tail]]
+     (my-reduce f head tail)))
 
-#+RESULTS:
-: #'user/my-reduce
+  ;; => #'user/my-reduce
+#+end_src
 
 We could reimplement our symmetrizer as follows:
 
@@ -2342,10 +2193,8 @@ We could reimplement our symmetrizer as follows:
               (into final-body-parts (set [part (matching-part part)])))
             []
             asym-body-parts))
+  ;; => #'user/better-symmetrize-body-parts
 #+end_src
-
-#+RESULTS:
-: #'user/better-symmetrize-body-parts
 
 Groovy! One immediately obvious advantage of using /reduce/ is that you write
 less code overall. The anonymous function you pass to /reduce/ focuses only on
@@ -2436,8 +2285,6 @@ it):
   ;; This will output a vector with all original parts plus their "right-" counterparts
 #+end_src
 
-#+RESULTS:
-
 **** The Generic /expand-body-parts/ Function
 
 Now, let's abstract this. We'll pull out the logic of /matching-part/ and make
@@ -2515,8 +2362,6 @@ one leg, but we need to create 7 more of each.
   ;; Now we can symmetrize using the generic function!
   (expand-body-parts spider-expander asym-spider-body-parts)
 #+end_src
-
-#+RESULTS:
 
 The result will be a collection of maps. It will include the original
 \cephalothorax\, \abdomen\, and /fang/. The singel /{:name "eye" :size 1}/ will
@@ -2602,8 +2447,7 @@ your new skill even more, try some Project Euler challenges at
 http://www.projecteuler.net. You could also check out [[https://www.4clojure.com/problems][4Clojure]], an online set of
 Clojure problems designed to test your knowledge. Just write something!.
 
-
-** Exercise
+* Exercise
 
 These exercises are meant to be a fun way to test your Clojure knowledge and to
 learn more Clojure functions. The first three can be completed using only the
@@ -2613,37 +2457,149 @@ really itching to write more code and explore Clojure's standard library. If you
 find the exercises too difficult, revisit them after reading Chapter 4 and
 5--you'll find them much easier.
 
-1. Use /str/, /vector/, /list/, /hash-map/ and /hash-set/ functions
+** 1. Use /str/, /vector/, /list/, /hash-map/ and /hash-set/ functions
 
-2. Write a function that takes a number and adds 100 to it.
+- use string data structure
 
-3. Write a function, /dec-maker/, that works exactly like the function
+#+begin_src clojure :results output :exports both eval: never-export
+  (print (str "I start to use \"str\" as clojure data structure"))
+  ;; => : I start to use "str" as clojure data structure
+#+end_src
+
+- Use vector data structure
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (print [1 2 3])
+  ;; => [1 2 3]
+#+end_src
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (vector 1 2 3)
+  ;; =>[1 2 3]
+#+end_src
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (vector (str "Hamburger" "generate" "last")
+          1 2 3
+          (str "new string spaces"))
+  ;; =>["Hamburgergeneratelast" 1 2 3 "new string spaces"]
+#+end_src
+
+- Use 'hash-map' data structure:
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (hash-map :1 "joker"
+            :2 [1 2 3]
+            :4 '(list of number)
+            :a {:1 2 :2 "list inside a list"})
+
+  ;; => {:4 (list of number),
+  ;; => :1 "joker",
+  ;; => :2 [1 2 3],
+  ;; => :a {:1 2, :2 "list inside a list"}}
+#+end_src
+
+same as:
+
+#+begin_src clojure :results output :exports both eval: never-export
+  {:1 "joker"
+   :2 [1 2 3]
+   :3 '(list of string)
+   :4 #{:1 "set with string" :a 123}}
+#+end_src
+
+Notice the value maps of /:4/ a sets of 4 values:
+  1.  /:1/                a keyword
+  2. /"set with string"/  a string
+  3. /:a/                 a keyword
+  4. 123                  a number (specifically, a /Long/ in Clojure)
+
+so /:1/ is not pointing on /"set with string", or /:a/ is not pointing on /123/.
+
+look up map values:
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (get (hash-map :1 "joker"
+                 :2 [1 2 3]
+                 :4 '(list of number)
+                 :a {:1 2 :2 "list inside a list"})
+       :a)
+  ;; =>{:1 2, :2 "list inside a list"} ;; value of ":a"
+#+end_src
+
+- use hash-set data structure
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (hash-set :name "McFishwich" :postcard 123456 :handphone +001123456)
+  ;; => #{"McFishwich" :name :handphone :postcard 123456 304942}
+#+end_src
+
+#+begin_src clojure :results output :exports both eval: never-export
+    #{
+      {:name {:first-name "McFishwich" :last-name "Dunkrirk"}}
+      {:phone {:handphone "+62-845-987-32" :office-phone "+021-3333-444-23"}}
+      }
+
+  ;; =>#{{:name {:first-name "McFishwich", :last-name "Dunkrirk"}}
+  ;;     {:phone {:handphone "+62-845-987-32",
+  ;;      :office-phone "+021-3333-444-23"}}}
+
+#+end_src
+
+** 2. Write a function that takes a number and adds 100 to it.
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (defn add-100
+    [number]
+    (+ 100 number))
+
+  (add-100 5)
+#+end_src
+
+** 3. Write a function, /dec-maker/, that works exactly like the function
    /inc-maker/except with subtraction:
 
-   #+begin_src clojure :results output :exports both eval: never-export
-     (def dec9 (dec-maker 9))
-     (dec9 10)
-     ; => 1
-   #+end_src
+#+begin_src clojure :results output :exports both eval: never-export
+  (def dec9 (dec-maker 9))
+  (dec9 10)
+  ;; => 1
+#+end_src
 
-4. Write a function /mapset/, that works like /map/ except the return value is a set:
+#+begin_src clojure :results output :exports both eval: never-export
+  (defn dec-maker
+    "Create a custom decrementor."
+    [dec-by]
+    #(- % dec-by))
 
-   #+begin_src clojure :results output :exports both eval: never-export
-     (mapset inc [1 1 2 2])
-     ; => #{2 3}
-   #+end_src
+  (def dec9 (dec-maker 9))
 
-5. Create a function that's similar to /symmetrize-body-parts/ except that it
+  (dec9 7)
+  ;; => -2
+
+  (print (dec9 6))
+  ;; => -3
+
+  (dec9 10)
+  ;; => 1
+#+end_src
+
+** 4. Write a function /mapset/, that works like /map/ except the return value is a
+   set:
+
+#+begin_src clojure :results output :exports both eval: never-export
+  (mapset inc [1 1 2 2])
+  ;; => #{2 3}
+#+end_src
+
+** 5. Create a function that's similar to /symmetrize-body-parts/ except that it
    has to work with weird space aliens with radial symmetry. Instead of two
    eyes, arms, legs, and so on, they have five.
 
-6. Create a function that generalizes /symmetrize-body-parts/ and the function
+** 6. Create a function that generalizes /symmetrize-body-parts/ and the function
    you crated in Exercise 5. The new function should take collection of body
    parts and the number of matching body parts to add. If you're completely
    won't be obvious how to do this. If you get stuck, just move on to the next
    chapter and revisit the problem later.
-
-
 
 * Footnotes
 

@@ -1,0 +1,6 @@
+#+TITLE: Clojure For The Brave and True Part -- I Language Fundamental
+#+DATE: 2025-08-13 Wed
+#+AUTHOR: Agung Tuanany
+#+DESCRIPTION: Clojure, book, A summary per chapter form book clojure-for-the-brave-and-true.
+#+KEYWORDS: programming, clojure, clojure-for-the-brave-and-true.
+#+OPTIONS: toc:nil num:nil

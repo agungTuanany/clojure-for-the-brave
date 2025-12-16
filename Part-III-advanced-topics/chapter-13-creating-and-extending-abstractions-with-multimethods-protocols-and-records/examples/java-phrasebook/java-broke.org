@@ -1,0 +1,48 @@
+unjrk@dn-arch java-test]$ /usr/lib/jvm/java-17-openjdk/bin/java -cp . phrasebook.PirateConversation
+Error: LinkageError occurred while loading main class phrasebook.PirateConversation
+        java.lang.UnsupportedClassVersionError: phrasebook/PirateConversation has been compiled by a more recent version of the Java Runtime (class file version 69.0), this version of the Java Runtime only recognizes class file versions up to 61.0
+
+
+[daunjrk@dn-arch java-test]$ /usr/lib/jvm/java-17-openjdk/bin/java -cp . phrasebook.PirateConversation
+Exception in thread "main" java.lang.NoClassDefFoundError: pirate_phrases/Greetings
+        at phrasebook.PirateConversation.main(PirateConversation.java:9)
+Caused by: java.lang.ClassNotFoundException: pirate_phrases.Greetings
+        at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+        at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+        at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+        ... 1 more
+[daunjrk@dn-arch java-test]$
+
+
+package phrasebook;
+
+import pirate_phrases.*;
+
+public class PirateConversation
+{
+    public static void main(String[] args)
+    {
+        // Greetings greetings = new Greetings();
+        Greetings.hello();
+
+        // Farewells farewells = new Farewells();
+        Farewells.goodbye();
+    }
+}
+
+
+
+
+~/java-test [1] $ /usr/lib/jvm/java-17-openjdk/bin/java -cp . phrasebook.PirateConversation
+
+Exception in thread "main" java.lang.NoClassDefFoundError: pirate_phrases/Greetings
+        at phrasebook.PirateConversation.main(PirateConversation.java:10)
+Caused by: java.lang.ClassNotFoundException: pirate_phrases.Greetings
+        at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+        at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+        at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:525)
+        ... 1 more
+
+
+        pirate_phrases     ← WRONG
+        pirate_phrases     ← correct spelling

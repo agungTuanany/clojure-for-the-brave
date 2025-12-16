@@ -1,0 +1,62 @@
+user> (def sock-varieties
+        #{"darned" "argyle" "wool" "norsheir" "mulleted"
+          "passive-aggresive" "striped" "polka-dotted"
+          "athletic" "business" "power" "invisile" "gollumed"})
+;; =>#'user/sock-varieties
+user> (defn sock-count
+        [sock-variety count]
+        {:variety sock-variety
+         :count count})
+
+(defn generate-sock-gnome
+  "Create an initial sock gnome state with no socks"
+  [name]
+  {:name name
+   :socks #{}})
+;; =>#'user/sock-count;; =>#'user/generate-sock-gnome
+user>   (def sock-gnome (ref (generate-sock-gnome "barumpharump")))
+;; =>#'user/sock-gnome
+user> (def dryer (ref {:name "LG 1337" :socks (set (map #(sock-count % 2) sock-varieties))}))
+;; =>#'user/dryer
+user> (:socks @dryer)
+;; =>#{{:variety "gollumed", :count 2}
+{:variety "striped", :count 2}
+{:variety "wool", :count 2}
+{:variety "argyle", :count 2}
+{:variety "business", :count 2}
+{:variety "darned", :count 2}
+{:variety "polka-dotted", :count 2}
+{:variety "passive-aggresive", :count 2}
+{:variety "power", :count 2}
+{:variety "athletic", :count 2}
+{:variety "mulleted", :count 2}
+{:variety "invisile", :count 2}
+;; => {:variety "norsheir", :count 2}}
+
+(defn steal-sock
+        [gnome dryer]
+        (dosync
+         (when-let [pair (some #(if (= (:count %) 2) %) (:socks @dryer))]
+           (let [updated-count (sock-count (:variety pair) 1)]
+             (alter gnome update-in [:socks] conj updated-count)
+             (alter dryer update-in [:socks] disj pair)
+             (alter dryer update-in [:socks] conj updated-count)))))
+;; =>#'user/steal-sock
+user> (steal-sock sock-gnome dryer)
+;; =>{:name "LG 1337",
+ :socks
+ #{{:variety "striped", :count 2}
+   {:variety "wool", :count 2}
+   {:variety "argyle", :count 2}
+   {:variety "business", :count 2}
+   {:variety "darned", :count 2}
+   {:variety "polka-dotted", :count 2}
+   {:variety "passive-aggresive", :count 2}
+   {:variety "power", :count 2}
+   {:variety "athletic", :count 2}
+   {:variety "gollumed", :count 1}
+   {:variety "mulleted", :count 2}
+   {:variety "invisile", :count 2}
+;; =>  {:variety "norsheir", :count 2}}}
+user> (:socks @sock-gnome)
+;; =>#{{:variety "gollumed", :count 1}}

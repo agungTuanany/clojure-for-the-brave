@@ -1,0 +1,48 @@
+  (fire "-t" "NBA Jam guy")
+  (fire :thing "NBA jam guys")
+  (fire "-p" "-t" "NBA Jam guys")
+  (fire :pluralize true :thing "NBA jam guys")
+  (def strinc (comp str inc))
+(strinc 3)
+  (defn whiney-str
+[rejects]
+{:pre [(set? rejects)]}
+(fn [x]
+(if (rejects x)
+(str "I don't like " x)
+(str x))))
+  (def whiney-strinc (comp (whney-str #{2}) inc))
+  (def whiney-strinc (comp (whiney-str #{2}) inc))
+  (whiney-strinc 1)
+  (defn whiney-middleware
+[next-handler rejects]
+{:pre [(set? rejects)]}
+(fn [x]
+(if (= x 1)
+"I'm ot goint to bother doing anything to that"
+(let [y (next-handler x)]
+(if (reject y)
+(str "I don't like " y)
+(str y))))))
+  (defn whiney-middleware
+    [next-handler rejects]
+    {:pre [(set? rejects)]}
+    (fn [x]
+      (if (= x 1)
+        "I'm ot goint to bother doing anything to that"
+        (let [y (next-handler x)]
+          (if (rejects y)
+            (str "I don't like " y)
+            (str y))))))
+  (defn whiney-middleware
+    [next-handler rejects]
+    {:pre [(set? rejects)]}
+    (fn [x]
+      (if (= x 1)
+        "I'm ot goint to bother doing anything to that"
+        (let [y (next-handler x)]
+          (if (rejects y)
+            (str "I don't like " y)
+            (str y))))))
+  (def whiney-strinc (whiney-middleware inc #{2}))
+  (whiney-strinc 1)

@@ -1,0 +1,40 @@
+#+TITLE: README.org | A Brief over Clojure For the Brave and True
+#+DATE: 2025-12-08 Mon
+#+AUTHOR: Agung Tuanany
+#+DESCRIPTION: Clojure, book, A summary per chapter from book clojure-for-the-brave-and-true.
+#+KEYWORDS: programming, clojure, clojure-for-the-brave-and-true.
+#+OPTIONS: toc:nil num:nil
+
+
+* What this is about?
+
+I've been watching Clojure since 2015, but I'm not sure enough my path from deep
+knowledge JavaScript jump into Clojure. At that time JavaScript environment so
+adequate
+
+I try to learn with re-write and try one by one the code examples. There is view
+in last chapter the code examples didn't match between the REPL result with the
+book result. So I try to figure it out.
+
+In end of chapter there's exercise, I try to do it.
+
+At that time, the JavaScript environment was developing rapidly with the
+implementation of ECMA-6, while I was just stuck with various frameworks that
+had been developed. I was so focused on frameworks that I forgot about the basic
+languages and paradigms and got caught in a rabbit hole of JavaScript
+frameworks, to the point that I didn't learn and make JavaScript powerful enough
+to do everything.
+
+In 2020, I became fascinated with Emacs and tried to read about its origins,
+which led me directly to LISP. LISP is a programming language that is more than
+half a decade old and is still used as one of the languages for AI development.
+I was fascinated by how LISP untangled the complex logic of programming, making
+it clear what was happening behind the scenes. I began writing my own Emacs
+configurations in a modular way, ensuring they didn't depend on one another.
+
+Then I came across this book, which thoroughly teaches the fundamentals of
+Clojure in Part II, covering syntax, data structures, functions, and how they
+all come together.
+
+In Part III, the book explains concurrency, which includes futures, delays, and
+promises, with comprehensive case studies.

@@ -1,0 +1,1180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2025-10-11 Sat 16:29 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Clojure For The Brave and True Part II &#x2013; Chapter 7 Alchemy: Reading, Evaluation and Macros</title>
+<meta name="author" content="Agung Tuanany" />
+<meta name="description" content="Clojure, book, A summary per chapter from book clojure-for-the-brave-and-true." />
+<meta name="keywords" content="programming, clojure, clojure-for-the-brave-and-true." />
+<meta name="generator" content="Org Mode" />
+<style type="text/css">
+  #content { max-width: 60em; margin: auto; }
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background-color: #f2f2f2;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    padding: 3px;
+    color: #555;
+    background-color: #f2f2f299;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { }
+</style>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Clojure For The Brave and True Part II &#x2013; Chapter 7 Alchemy: Reading, Evaluation and Macros</h1>
+<p>
+The philosopher's stone, along with elixir of life and Viagra, is one of the
+most well-known specimens of alchemical lore, pursued for its ability to
+transmute lead into gold. Clojure, however, offers a tool that makes the
+philosopher's stone look like a mere trinket: the <i>macro</i>.
+</p>
+
+<p>
+Macros allow you to transform arbitrary expressions into valid Clojure, so you
+can extend the language itself to fit your needs. And you don't even have to be
+wizened old dude or lady in a robe to use them!.
+</p>
+
+<p>
+To get just a sip of this power, consider this trivial macro:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(defmacro backwards
+  [form]
+  (reverse form))
+
+(backwards (" backwards" " am" "I" str))
+;; =&gt;"I am backwards"
+</pre>
+</div>
+
+<p>
+The backwards macro allows Clojure to successfully evaluate the expression
+<i>(backwards (" backwards" " am" "I" str))</i>, even though it doesn't follow
+Clojure's built-in syntax rules, which require an expression's operand to appear
+first (not to mention the rule that an expression not to be written in reverse
+order). Without <i>backwards</i>, the expression would fail harder than millenia of
+alchemists ironically spending their entire lives pursuing an impossible means
+of achieving immortality. With <i>backwards</i>, <b><i>you've created your own syntax</i>!</b>
+You've extended Clojure so you can write code however you please! Better than
+turning lead into gold. I tell you!.
+</p>
+
+<p>
+This Chapter gives you the conceptual foundation you need to go mad with power
+writing your own macros. It explains the elements of Clojure's evaluation model:
+the <i>reader</i>, the <i>evaluator</i>, and the <i>macro expander</i>. It's like the periodic
+table of Clojure elements. Think of how the periodic table reveals the
+properties of atoms: elements in the same column behave similarly because they
+have the same nuclear charge. Without the periodic table and its underlying
+theory, we'd be in the same position as the alchemists of yore, mixing stuff
+together randomly to see what blows up. But with a deeper understanding of the
+elements, you can see why stuff blows up and learn how to blow stuff up on
+purpose.
+</p>
+<div id="outline-container-orgde99984" class="outline-2">
+<h2 id="orgde99984">An Overview of Clojure’s Evaluation Model</h2>
+<div class="outline-text-2" id="text-orgde99984">
+<p>
+Clojure (like all Lisp) has an evaluation model that differs from most other
+languages: it has a two-phase system where it <i>reads</i> textual source code,
+producing Clojure data structures. These data structures are then <i>evaluated</i>:
+Clojure traverses the data structures and performs action like function
+application or var lookup based on the type of the data structure. For example,
+when Clojure reads the text <i>(+ 1 2)</i>, the result is a list data structure whose
+first elements is a <i>+</i> symbol, followed by the numbers <i>1</i> and <i>2</i>. This data
+structure is passed to Clojure's evaluator, which looks up the function
+corresponding to <i>+</i> and applies that function to <i>1</i> and <i>2</i>.
+</p>
+
+<p>
+Languages that have this relationship between source code, data, and evaluation
+are called <b><i>homoiconic</i></b><sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup>. (Incidentally, if you say <i>homoiconic</i> in front
+of you bathroom mirror three times with the lights out, the ghost of John
+McCarthy appears and hands you a parenthesis.) Homoiconic languages empower you
+to reason about your code as a set of data structures that you can manipulate
+programmatically. To put this into context, let's take a jaunt through the land
+of compilation.
+</p>
+
+<p>
+Programming languages require a compiler of interpreter for translating the code
+you write, which consist of Unicode characters, into something else: machine
+instructions, code in another programming language, whatever. During this
+process, the compiler construct an <i>abstract syntax tree</i> (AST), which is a data
+structure that represents your program. You ca think of the AST as the input to
+the <i>evaluator</i>, which you can think of as a function that traverses the tree to
+produce the machine code or whatever as its output.
+</p>
+
+<p>
+So far this sounds a lot like what I described for Clojure. However, in most
+languages the AST's data structure is inaccessible within the programming
+language; the programming language space and the compiler space are forever
+separated, and never the twain shall meet.
+</p>
+
+
+<div id="org6d6b52c" class="figure">
+<p><img src="figures-listing-and-images/Figure-7-1.png" alt="Figure-7-1.png" />
+</p>
+<p><span class="figure-number">Figure 1: </span>Figure 7-1: Evaluation in a non-lip programming language</p>
+</div>
+
+
+<p>
+But Clojure is different, because Clojure is a Lisp and Lisps are hotter than a
+stolen tamale. Instead of evaluating an AST that's represented as some
+inaccessible internal data structure, Lisps evaluate native data structures.
+Clojure still evaluates tree structures, but the tree are structured using
+Clojure lists and the nodes are Clojure values.
+</p>
+
+<p>
+List are ideal for constructing tree structures. The first element of a list is
+treated as the root, and each subsequent element is treated as branch. To create
+a nested tree, you can just use nested lists, as shown in Figure 7-2.
+</p>
+
+
+<div id="org57d8147" class="figure">
+<p><img src="figures-listing-and-images/Figure-7-2.png" alt="Figure-7-2.png" />
+</p>
+<p><span class="figure-number">Figure 2: </span>Figure 7-2: Lists can easily be treated as trees.</p>
+</div>
+
+
+<p>
+First, Clojure's <i>readers</i> converts the text <i>(+ 1(* 6 7))</i> into a nested list.
+(You'll learn more about the reader in the next section.) Then, Clojure's
+evaluator takes that data as input and produces a result. (It also compiles Java
+Virtual Machine (JVM) bytecode, which you'll learn about in Chapter 12. For now,
+we'll just focus on the evaluation model on a conceptual level.)
+</p>
+
+<p>
+With this in mind, Figure 7-3 shows what Clojure's evaluation process looks
+like.
+</p>
+
+<p>
+<b>S-EXPRESSIONS</b>
+</p>
+
+<p>
+In your lisp adventures, you'll come across resources that explain that Lisps
+evaluate s-expressions. I avoid that term here because it's ambiguous: you'll
+see it used to refer to both the actual data object that gets evaluated and the
+source code that represents that data. Using the same term for two different
+components of Lisp evaluation (code and data) obscures what's important: your
+text represents native data structures, which is unique and awesome. For a great
+treatment of s-expressions, check out
+<a href="https://www.gigamonkeys.com/book/syntax-and-semantics.html">https://www.gigamonkeys.com/book/syntax-and-semantics.html</a>
+</p>
+
+
+<div id="orgdedb7a9" class="figure">
+<p><img src="figures-listing-and-images/Figure-7-3.png" alt="Figure-7-3.png" />
+</p>
+<p><span class="figure-number">Figure 3: </span>Figure 7-3: Evaluation in Clojure</p>
+</div>
+
+
+<p>
+However, the evaluator doesn't actually care where its input comes from; it
+doesn't have to come from the reader. As a result, you can send your program's
+data structures directly to the Clojure evaluator with <i>eval</i>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(def addition-list (list + 1 2))
+;; =&gt; 3
+</pre>
+</div>
+
+<p>
+That's right, baby! Your program just evaluated a Clojure list. You'll read all
+about Clojure's evaluation rules soon, but briefly, this is what happened: when
+Clojure evaluated the list, it looked up the list that <i>addition-list</i> refers
+to; then it looked up the function corresponding to the <i>+</i> symbol; and then it
+called that function with <i>1</i> and <i>2</i> as arguments, returning <i>3</i>. The data
+structures of your programming running program and those of the evaluator live
+in the same space, and the upshot is that you can use the full power of Clojure
+and all the code you've written to construct data structures for evaluation:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(eval (concat addition-list [10]))
+;; =&gt;13
+
+(eval (list 'def 'lucky-number (concat addition-list [10])))
+;; =&gt;#'user/luck-number
+
+lucky-number
+;; =&gt;13
+</pre>
+</div>
+
+<p>
+Figure 7-4 shows the lists you sent to the evaluator in these two examples.
+</p>
+
+
+<div id="org157395d" class="figure">
+<p><img src="figures-listing-and-images/Figure-7-4.png" alt="Figure-7-4.png" />
+</p>
+<p><span class="figure-number">Figure 4: </span>Figure 7-4: The lists you evaluated</p>
+</div>
+
+
+<p>
+Your program can talk directly to its own evaluator, using its own functions and
+data to modify itself as it runs! Are you going mad with power yet? I hope so!
+Hold on to some of your sanity, though, because there's still more to learn.
+</p>
+
+<p>
+So Clojure <i>homoiconic</i>; it represents abstract syntax tree using lists, and you
+write textual representations of lists when you write Clojure code. Because the
+code you write represents data structures that you're used to manipulating and
+the evaluator consumes those data structures, it's easy to reason about how to
+programmatically modify your program.
+</p>
+
+<p>
+Macros are what allow you to perform those manipulations easily. The rest of
+this chapter covers Clojure's reader and evaluation rules in detail to give you
+a precise understanding of how macros work.
+</p>
+</div>
+</div>
+<div id="outline-container-org7912c3d" class="outline-2">
+<h2 id="org7912c3d">The Reader</h2>
+<div class="outline-text-2" id="text-org7912c3d">
+<p>
+The reader converts the textual source code you save in a file or enter in the
+REPL into Clojure data structures. It's like a translator between the human
+world of Unicode characters and Clojure's world of lists, vectors, maps,
+symbols, and other data structures. In this section, you'll interact directly
+with the reader and learn how a handy feature, the <i>reader macro</i>, lets you
+write code succinctly<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>.
+</p>
+</div>
+<div id="outline-container-orga8f8826" class="outline-3">
+<h3 id="orga8f8826">Reading</h3>
+<div class="outline-text-3" id="text-orga8f8826">
+<p>
+To understand reading, let's first take a close look at how Clojure handles the
+text you type in the REPL. First, the REPL prompts you for text:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">user=&gt;
+</pre>
+</div>
+
+<p>
+Then you enter a bit of text. Maybe something like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">user=&gt; (str "To understand what recursion is, " " you must first understand
+recursion.")
+</pre>
+</div>
+
+<p>
+That text is really just a sequence of Unicode characters, but it's meant to
+represent a combination of Clojure data structures. This textual representation
+of data structures is called <i>reader form</i>. In this example, the form represents
+a list data structure that contains three more forms: the <i>str</i> symbol and two
+strings.
+</p>
+
+<p>
+Once you type those characters into prompt and press <i>ENTER</i>, that text goes to
+the reader (remember REPL stands for read-eval-print-loop). Clojure reads the
+stream of characters and internally produces the corresponding data structures.
+It then evaluates the data structures and prints the textual representation of
+the result:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">"To understand what recursion is, you must first understand recursion."
+</pre>
+</div>
+
+<p>
+Reading and evaluation are discrete processes that you can perform
+independently. One way to interact with the reader directly is by using the
+<i>read-string</i> function. <i>read-string</i> takes a string as an argument and
+processes it using Clojure's reader, returning a data structure:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "(+ 1 2)")
+;; =&gt;(+ 1 2)
+
+(list? (read-string "(+ 1 2)"))
+;; =&gt;true
+
+(conj (read-string "(+ 1 2)") :zagglewag)
+;; =&gt;(:zagglewag + 1 2)
+</pre>
+</div>
+
+<p>
+In the first examples, <i>read-string</i> reads the string representation of a list
+containing a plus symbol and the numbers <i>1</i> and <i>2</i>. The return value is an
+actual list, as proven by the second example. The last example uses <i>conj</i> to
+prepend a keyword to the list. The takeway is that reading and evaluating are
+independent of each other. You can read text without evaluating it, and you can
+pass the result to other functions. You can also evaluate the result, if you
+want:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(eval (read-string "(+ 1 2)"))
+;; =&gt; 3
+</pre>
+</div>
+
+<p>
+In all examples so far, there's been a one-to-one relationship between the
+reader form and the corresponding data structures. Here are more examples of
+simple reader forms that directly map to the data structures they represent:
+</p>
+
+<ul class="org-ul">
+<li>()     A list reader form</li>
+<li>str    A symbol reader form</li>
+<li>[1 2]  A <i>vector</i> reader form containing two number reader forms</li>
+<li>{:sound "hoot"} A map reader form with a keyword reader form and string
+reader form</li>
+</ul>
+
+<p>
+However, the reader can employ more complex behavior when converting text to
+data structures. For example, remember anonymous functions?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(#(+ 1 %) 3)
+;; =&gt; 4
+</pre>
+</div>
+
+<p>
+Well, try this out:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "#(+ 1 %)")
+;; =&gt;(fn* [p1__9907#] (+ 1 p1__9907#))
+</pre>
+</div>
+
+<p>
+Whoa! This is not the one-to-one mapping that we're used to. Reading <i>#(+ 1 %)</i>
+somehow resulted in a list consisting of the <i>fn*</i> symbol, a vector containing a
+symbol, and a list containing three elements. What just happened?
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc60dc0" class="outline-3">
+<h3 id="orgcc60dc0">Reader Macros</h3>
+<div class="outline-text-3" id="text-orgcc60dc0">
+<p>
+I'll answer my own question: the reader used a <i>reader macro</i> to transform <i>#(+
+1 %)</i>. Reader macros are sets of rules for transforming text into data
+structures. They often allow you to represent data structures in more compact
+ways because they take an abbreviated reader form and expand it into a full
+form. They're designated by <i>macro characters</i> like <i>'</i> (the single quote), <i>#</i>,
+and <i>@</i>. They're also completely different from the macros we'll get to later.
+So as not to get the two confused, I'll always refer to reader macros using the
+full term <i>reader macros</i>.
+</p>
+
+<p>
+For example, you can see how the quote reader macro expands the single quote
+characters here:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "'(a b c)")
+;; =&gt; : (quote (a b c))
+</pre>
+</div>
+
+<p>
+When the reader encounters the single quote, it expands it to a list whose first
+member is the symbol <i>quote</i> and whose second member is the data structure that
+followed the single quote. The <i>deref</i> reader macro works similarly for the <i>@</i>
+character:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "@var")
+;;  =&gt; (clojure.core/deref var)
+</pre>
+</div>
+
+<p>
+Reader macros can also do crazy stuff like cause text to be ignored. The
+semicolon designates the single-line comment reader macro:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "; ignore!\n(+ 1 2)")
+;; =&gt; (+ 1 2)
+</pre>
+</div>
+
+<p>
+And that's the reader! Your humble companion, toiling away a transforming text
+into data structures. Now let's look at how Clojure evaluates those data
+structures.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org885af42" class="outline-2">
+<h2 id="org885af42">The Evaluator</h2>
+<div class="outline-text-2" id="text-org885af42">
+<p>
+You can think of Clojure's evaluator as a function that takes a data structure
+as an argument, processes the data structure using rules corresponding to the
+data structure's type, and returns a result. To evaluate a symbol, Clojure looks
+up what the symbol refers to. To evaluate a list, Clojure looks at the first
+element of the list and calls a function, macro, or special form. Any other
+values (including strings, numbers, and keywords) simply evaluate to themselves.
+</p>
+
+<p>
+For example, let's say you've types <i>(+ 1 2)</i> in the REPL. Figure 7-5 shows a
+diagram of the data structure that gets sent to the evaluator.
+</p>
+
+
+<div id="org838b5f1" class="figure">
+<p><img src="figures-listing-and-images/Figure-7-5.png" alt="Figure-7-5.png" style="&quot;float: right; margin: 10px 0 10px 10px; width: 40%;&quot;" />
+</p>
+<p><span class="figure-number">Figure 5: </span>Figure 7-5: The data structure for (+ 1 2)</p>
+</div>
+
+<p>
+Because it's a list, the evaluator starts by evaluating the first element in the
+list. The first element is the plus symbol, and the evaluator resolves that by
+returning the corresponding function. Because the firs element in the list is a
+function, the evaluator evaluates each of the operands. The operands <i>1</i> and <i>2</i>
+evaluate to themselves because they're not lists or symbols. Then the evaluator
+calls the addition function with <i>1</i> and /2/2 as the operands, and return the
+result.
+</p>
+
+<p>
+The rest of this section explain the evaluator's rules for each kind of data
+structure more fully. To show the evaluator works, we'll just run each example
+in the REPL. Keep in mind that the REPL first reads your text to get a data
+structure, then sends that data structure to the evaluator, and then prints the
+result as text.
+</p>
+
+<p>
+<b><code>=DATA=</code></b>
+</p>
+
+<p>
+I write about how Clojure evaluates data structures in this chapter but that's
+imprecise. Technically, data structure refers to some kind of collection, like a
+linked list or b-tree, or whatever, but I also use the term to refer to scalar
+(singular, noncollection) values like symbols and numbers. I considering using
+the term data objects but didn't want to imply object-oriented programming, or
+using just data but didn't want to confuse that with data as a concept. So data
+structure it is, and if you find this offensive, I will give you a thousand
+apologies, thoughfully organized in a Van Emde Boas tree.
+</p>
+</div>
+<div id="outline-container-org8102659" class="outline-3">
+<h3 id="org8102659">These Things Evaluate to Themselves</h3>
+<div class="outline-text-3" id="text-org8102659">
+<p>
+Whenever Clojure evaluates data structures that aren't a list, or symbol, the
+result is the data structure itself:
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-clojure">true
+;; =&gt; true
+
+false
+;; =&gt; false
+
+{}
+;; =&gt; {}
+
+:huzzah
+;; =&gt; :huzzah
+</pre>
+</div>
+
+<p>
+Empty list evaluate to themselves, too:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">()
+;; =&gt; ()
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org0be80a0" class="outline-3">
+<h3 id="org0be80a0">Symbols</h3>
+<div class="outline-text-3" id="text-org0be80a0">
+<p>
+One of your fundamental tasks as a programmer is creating abstractions by
+associating names with values. You learned how to do this in Chapter 3 by using
+<i>def</i>, <i>let</i>, and functions, macros, data, and anything else you can use, and
+evaluates them by <i>resolving</i> them. to resolve a symbol, Clojure traverses<sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>
+any bindings you've created and then looks up the symbol's entry in a namespace
+mapping, which you learned about in Chapter 6. Ultimately. a symbol resolve to
+either a <i>value</i> or <i>special form</i>&#x2013;a built-in Clojure operator that provides
+fundamental behavior.
+</p>
+
+<p>
+In general, Clojure resolves a symbol by:
+</p>
+
+<ol class="org-ol">
+<li>Looking up wether the symbol names a special form if it doesn't&#x2026;</li>
+<li>Looking up whether the symbol corresponds to a local binding. If it
+doesn't&#x2026;</li>
+<li>Trying to find a namespace mapping introduced by <i>def</i>. If it doesn't&#x2026;</li>
+<li>Throwing an exception.</li>
+</ol>
+
+<p>
+Let's first look at a symbol resolving to a special form. Special forms, like
+<i>if</i>, are always used in the context of an operation; they're always the first
+element in a list:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(if true :a :b)
+;; =&gt; :a
+</pre>
+</div>
+
+<p>
+In this case, <i>if</i> is a special form and it's being used as an operator. If you
+try to refer to a special form outside of this context, you'll get an exception:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">if
+;; =&gt; Unable to resolve symbol: if in this context
+</pre>
+</div>
+
+<p>
+Next, let's evaluate some local bindings. A <i>local binding</i> is any association
+between a symbol and a value that wasn'tcreated by <i>def</i>. In the next example,
+the symbol <i>x</i> is bound to 5 using <i>let</i>. When the evaluator resolves <i>x</i>, it
+resolves the <i>symbol x</i> to the <i>value 5</i>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(let [x 5]
+  (+ x 3))
+;; =&gt; 8
+</pre>
+</div>
+
+<p>
+Now if we create a namespace mapping of <i>x</i> to <i>15</i>, Clojure resolve it
+accordingly:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(def x 15)
+(+ x 3)
+;; =&gt; 18
+</pre>
+</div>
+
+<p>
+In the next example, <i>x</i> is mapped to <i>15</i>, but we introdice a local binding of
+<i>x</i> to <i>5</i> using <i>let</i>. so <i>x</i> is resolved <i>5</i>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(def x 15)
+(let [x 5]
+  (+ x 3))
+;; =&gt; 8
+</pre>
+</div>
+
+<p>
+you can nest bindings, in which case the most recently defined binding takes
+precedence:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(let [x 5]
+  (let [x 6]
+    (+ x 3)))
+;; =&gt; 9
+</pre>
+</div>
+
+<p>
+Function also create local bindings, binding parameters to arguments within the
+function body. In this next example, <i>exclaim</i> is mapped to a function. Within
+the function body, the parameter name <i>exclamation</i> is bound to the argument
+passed to the function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(defn exclaim
+  [exclamation]
+  (str exclamation "!"))
+
+(exclaim "Hadoken")
+;; =&gt; "Hadoken!"
+</pre>
+</div>
+
+<p>
+Finally, in this last example, <i>map</i> and <i>inc</i> both refer to functions:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(map inc [1 2 3])
+;; =&gt; (2 3 4)
+</pre>
+</div>
+
+<p>
+When Clojure evaluates this code, it first evaluates the <i>map</i> symbol, looking
+up the corresponding function and applying it to its arguments. The symbol <i>map</i>
+refers to the map function, but it shouldn't be confused with the function
+itself. The <i>map</i> symbol is still a data structure, the same way that the string
+<i>"fried salad"</i> is a data structure, but it's not the same as the function
+itself:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "+")
+;; =&gt; +
+
+(type (read-string "+"))
+;; =&gt;clojure.lang.Symbol
+
+(list (read-string "+") 1 2)
+;; =&gt; (+ 1 2)
+</pre>
+</div>
+
+<p>
+In these examples, you're interacting with the plus symbol, <i>+</i>, as a data
+structure. You're not interacting with the addition function that it refers to.
+If you evaluate it, Clojure looks up the function and applies it:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(eval (list (read-string "+") 1 2))
+;; =&gt; 3
+</pre>
+</div>
+
+<p>
+On their own, symbol and their referents don't actually do anyting; Clojure
+performs work by evaluating lists.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd95f728" class="outline-3">
+<h3 id="orgd95f728">Lists</h3>
+<div class="outline-text-3" id="text-orgd95f728">
+<p>
+If the data structure is an empty list, it evaluates to an empty list:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(eval (read-string "()"))
+;; =&gt; ()
+</pre>
+</div>
+
+<p>
+Otherwise, it is evaluated as a <i>call</i> to the first element in the list. The way
+the call is performed depends on the nature of that first element.
+</p>
+</div>
+<div id="outline-container-org7a2c079" class="outline-4">
+<h4 id="org7a2c079">Function Calls</h4>
+<div class="outline-text-4" id="text-org7a2c079">
+<p>
+When performing function call, each operand is fully evaluated and then passed
+to the function as an argument. In this example, the <i>+</i> symbol resolves to a
+function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(+ 1 2)
+;; =&gt; 3
+</pre>
+</div>
+
+<p>
+Clojure sees that the list's head is a function, so it proceeds to evaluate the
+rest of the elements in the list. The operands <i>1</i> and <i>2</i> both evaluate to
+themselves, and after they're evaluated, Clojure applies the addition function
+to them.
+</p>
+
+<p>
+You can also nets function calls:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(+ 1 (+ 2 3))
+;; =&gt; 6
+</pre>
+</div>
+
+<p>
+Even though the second argument is a list, Clojure follows the same process
+here: look up the <i>+</i> symbol and evaluate each argument. To evaluate the list
+<i>(+ 2 3)</i>, Clojure resolves the first member to the addition function and
+proceeds to evaluate each of the arguments. In this way, evaluation is
+recursive.
+</p>
+</div>
+</div>
+<div id="outline-container-org0d4878e" class="outline-4">
+<h4 id="org0d4878e">Special Forms</h4>
+<div class="outline-text-4" id="text-org0d4878e">
+<p>
+You can also call <i>special forms</i>. In general, special forms are special because
+they implement core behavior that can't be implemented with functions.
+</p>
+
+<p>
+for example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(if true 1 2)
+;; =&gt; 1
+
+(if false 1 3)
+;; =&gt; 3
+</pre>
+</div>
+
+<p>
+Here, we ask clojure to evaluate a list beginning with the symbol <i>if</i>. That
+<i>if</i> symbol gets resolved to the <i>if</i> special form, and Clojure calls that
+special form with the operands <i>true</i>, <i>1</i>. and <i>2</i>.
+</p>
+
+<p>
+Special forms don't follow the same evaluation rules as normal functions. For
+example, when you call a function, each operand gets evaluated. However, with
+<i>if</i> you don't want each operand to be evaluated. You only want certain operands
+to be evaluated, depending on whether the condition is true or false.
+</p>
+
+<p>
+Another important special form is <i>quote</i>. You've seen lists represented like
+this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">'(a b c)
+</pre>
+</div>
+
+<p>
+As you saw in "The Reader" on the page 153, this invokes a reader macro so that
+we end up with this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(quote (a b c))
+;; =&gt; (a b c)
+</pre>
+</div>
+
+<p>
+Normally, Clojure would try to resolve the symbol and then call it because it's
+the first element in the a list. The <i>quote</i> special form tells the evaluator,
+"instead of evaluating my next data structure like normal, just return the data
+structure itself." In this case, you end up with a list consisting of the symbol
+<i>a</i>, <i>b</i>, and <i>c</i>.
+</p>
+
+<p>
+<i>def</i>, <i>let</i>, <i>loop</i>, <i>fn</i>, <i>do</i>, and <i>recur</i> are all special forms as well. You
+can see why: they don't get evaluated the same way as functions. For example,
+normally when the evaluator evaluates a symbol, it resolves that symbol, but
+<i>def</i> and <i>let</i> obviously don't behave that way. Instead of resolving symbols,
+they actually create associations between symbol and values. So the evaluator
+receives a combination of data structures from the reader, and it goes about
+resolving the symbols and calling the functions or special forms at the
+beginning of each list. But there's more! You can also place a <i>macro</i> at the
+beginning of a list instead of a function or a special form, and this can give
+you tremendous power over how the rest of the data structures are evaluated.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org674638f" class="outline-3">
+<h3 id="org674638f">Macros</h3>
+<div class="outline-text-3" id="text-org674638f">
+<p>
+Hmm&#x2026; Clojure evaluate data structures&#x2013;the same data structure that we write
+and manipulate in our Clojure programs. Wouldn't it be awesome if we could use
+Clojure to manipulate the data structures that Clojure evaluates? Yes, yes it
+would! And guess what? You can do this with macros! Did your head explode! Mine
+did!
+</p>
+
+<p>
+To get and idea of what macros do, let's look at some code. Say we want to write
+a function that makes Clojure read infix notation<sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup> (such as <i>1 + 1</i>)
+instead of its normal notation with the operator <i>(+ 1 1)</i>. This example is
+<i>not</i> a macro. Rather, it merely shows that you can write code using infix
+notation and then use Clojure to transform it so it will actually execute.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(read-string "(1 + 1)")
+;; =&gt; (1 + 1)
+</pre>
+</div>
+
+<p>
+Clojure will throw an exception if you try to make it evaluate this list:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(eval (read-string "(1 + 1)"))
+;; class java.lang.Long cannot be cast to class clojure.lang.IFn
+</pre>
+</div>
+
+<p>
+However, <i>read-string</i> returns a list, and you can use Clojure to reorganize
+that list into something it <i>can</i> successfully evaluate:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(let [infix (read-string "(1 + 1)")]
+  (list (second infix) (first infix) (last infix)))
+;; =&gt; (+ 1 1)
+</pre>
+</div>
+
+<p>
+If you eval this, it returns <i>2</i>, must as you'd expect:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(eval
+ (let [infix (read-string "(1 + 1)")]
+   (list (second infix) (first infix) (last infix))))
+;; =&gt; 2
+</pre>
+</div>
+
+<p>
+This is cool, but it's also quite clunky. That's where macros come in. Macros
+give you convenient to manipulate lists before Clojure evaluates them. Macros
+are a lot like functions: they take arguments and return a value, just like a
+function would. They work on Clojure data structure, just like function do. What
+makes them unique and powerful is the way they fit in to the evaluation process.
+They are executed in between the reader and the evaluator&#x2013;so they can
+manipulate the data structures that the reader spits out and transform with
+those data structures before passing them to the evaluator.
+</p>
+
+<p>
+Let's look and example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(defmacro ignore-last-operand
+  [function-call]
+  (butlast function-call))
+
+(ignore-last-operand (+ 1 2 10))  ;; [L-1]
+;; =&gt; 3
+
+;; This will not print anyting
+(ignore-last-operand (+ 1 2 (println "Look at mee!")))
+;; =&gt; 3
+</pre>
+</div>
+
+<p>
+at [L-1] the macro <i>ignore-last-operand</i> receives the list <i>(+ 1 2 10)</i> as its
+argument, <i>not</i> the value 13. This is very different from a function call,
+because function call always evaluate all of the arguments passed in, so there
+is no possible way for a function to reach into one its operands and alter or
+ignore it. By contrast, when you call a macro, the operands are <i>not</i> evaluated.
+In particular, symbol are not resolved; they are passed as symbols. List are not
+evaluated either; that is, the first element in the list is not called as a
+function, special for, or macro. Rather, the unevaluated list data structure is
+passed in.
+</p>
+
+<p>
+Another difference is that the data structure returned by a function is <i>not</i>
+evaluated, but the data structure returned by a macro <i>is</i>. The process of
+determining the return value of macro is called <i>macro expansion</i>, and you can
+use the function <i>macroexpand</i> to see what data structure a macro returns before
+that data structure is evaluated. Note that you have to quote the form that you
+pass to <i>macroexpand</i>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-clojure">(macroexpand '(ignore-last-operand (+ 1 2 10)))
+;; =&gt; (+ 1 2)
+
+(macroexpand '(ignore-last-operand (+ 1 2 (println "Look at me!"))))
+;; =&gt; (+ 1 2)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org34ec246" class="outline-3">
+<h3 id="org34ec246">Syntactic Abstraction and the -&gt; Macro</h3>
+</div>
+</div>
+<div id="outline-container-org1a3b520" class="outline-2">
+<h2 id="org1a3b520">Summary</h2>
+</div>
+<div id="outline-container-org2b7ac56" class="outline-2">
+<h2 id="org2b7ac56">Exercises</h2>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+a property of a programming language where its code is represented as a
+fundamental data structure of the language itself, allowing program to be
+manipulated as stat. This "code is data" relationship makes metaprogramming,
+such as writing macros, more straigthorward and powerful because the code can be
+treated and transformed just like any other data type. Example of homoiconic
+languages include Lisp and its dialects like Clojure.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+in a brief clearly expressed manner.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+To visit all the nodes or elements in a data structure, such as a tree or graph.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+A mathematical expression format where operators are written between
+operands they act on.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="date">Date: 2025-10-08 Wed</p>
+<p class="author">Author: Agung Tuanany</p>
+<p class="date">Created: 2025-10-11 Sat 16:29</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

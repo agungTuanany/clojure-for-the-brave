@@ -1,0 +1,1141 @@
+#+TITLE: Clojure For The Brave and True Part II -- Chapter 6 Organizing your project a librarian's tale.
+#+DATE: 2025-09-24 Wed
+#+AUTHOR: Agung Tuanany
+#+DESCRIPTION: Clojure, book, A summary per chapter from book clojure-for-the-brave-and-true.
+#+KEYWORDS: programming, clojure, clojure-for-the-brave-and-true.
+#+OPTIONS: toc:nil num:nil
+
+Within each of us lives a librarian named Melvil, a fantastical creature who
+delights in the organizational arts. Day and night, Melvil yearns to bring order
+to your codebase. Fortunately, Clojure provides a suite of tools designed
+specifically to aid this homunculus in its constant struggle against the forces
+of chaos.
+
+These tools help you organize our code by grouping together related functions
+and data. They also prevent name collisions so you don't accidentally overwrite
+someone else's code or vice versa. Join me in a tale of suspense and mystery as
+you learn to use these tools and solve the heist of a lifetime! By the end of
+the saga, you'll understand the following:
+
+ - What /def/ does
+ - What namespace are and how to use them
+ - The relationship between namespaces and the filesystem
+ - How to use /refer/, /alias/, /require/, /use/, and /ns/
+ - How to organize Clojure projects using filesystem
+
+
+* Your Project as a Library
+
+Real-world libraries store collections of objects, such as books, magazines, a
+DVDs. They use addressing systems, so when you're given an object's address, you
+can navigate to the physical space and retrieve the object.
+
+Of course, no human being would be expected to know offhand what a book's or
+DVDs address is. That's way libraries record the association between an object's
+title and its address and provide tools for searching these records. In ye olden
+times before computers, libraries provided card catalogs, which were cabinets
+filled with paper cards containing each book's title, author, "address" (its
+Dewey decimal or Library of Congress number), and other info.
+
+For example, to find /The Da Vinci Code/, you would riffle through the title
+catalog (cards ordered by title) until you found the correct card. On that card
+you would see the address 813.54 (if it's using the Dewey decimal System),
+navigate your library to find the shelf where /The Da Vinci Code/ resides, and
+engage in the literary and/or hate-reading adventure of your lifetime.
+
+It's useful to imagine a similar setup in Clojure, I think of Clojure as storing
+objects (like data structures and functions) in a vast set of numbered shelves.
+No human being could know offhand which shelf an object is storing in. Instead,
+we give Clojure an identifier that it uses to retrieve the object.
+
+For this to be successful, Clojure must maintain the associations between our
+identifiers and shelf addresses. It does this by using /namespaces/. Namespaces
+contain maps between human-friendly /symbols/ and references to shelf addresses,
+known as /vars/, much like a card catalog.
+
+Technically, namespaces are objects of type /clojure.lang.Namespace/, and you
+can interact with them justlike you can with Clojure data structures.
+
+For examples, you can refer to the current namespace with /*ns*/, and you can
+get its name with /(ns-name *ns*)/:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns-name *ns*)
+  ;; => user
+#+end_src
+
+When you start the REPL, for example, you're in the /user/ namespace (as you can
+see here). The prompt shows the current namespace using something like /user=>/.
+
+The idea of a current namespace implies that you can have more than one, and
+indeed Clojure allows you to create as many namespaces as you want (although
+technically, there might be an upper limit to the number of names you can
+create). In Clojure programs, you are always /in/ a namespace.
+
+As for symbols, you've been using them this entire time without even realizing
+it. For example, when you write /(map inc [1 2])/, both /map/ and /inc are
+symbols. Symbols are data types within Clojure, and I'll explain them thoroughly
+in the next chapter. For now, all you need to know is that when you give Clojure
+a symbol like /map, it finds the corresponding var in the current namespace,
+gets a shelf address, and retrieves an object form that self for you--in this
+case, the function that /map/ refers to. If you want to just use the symbol
+itself, and not the thing it refers to, you have to quote it. Quoting any
+Clojure form tells Clojure not to evaluate it but to treat it as data. The next
+few examples show what happens when you quote a form.
+
+#+begin_src clojure :result output :exports both eval: never-export
+  inc  [L-1]
+  ;; => #object[clojure.core$inc 0x49298ce7 "clojure.core$inc@49298ce7"]
+
+  'inc  [L-2]
+  ;; => inc
+
+  (map inc [1 2])  [L-3]
+  ;; => (2 3)
+
+  '(map inc [1 2])  [L-4]
+  ;; => (map inc [1 2])
+#+end_src
+
+When you evaluate in the REPL at [L-1], it prints out the textual representation
+of the function that /inc/ refers to. Next, you quote /inc/ at [L-2], so the
+result is the symbol /inc/. Then, you evaluate a familiar /map/ application at
+[L-3] and get a familiar result. After that, you quote the entire data structure
+at [L-4], resulting in an unevaluated list that includes the /map/ symbol, the
+/inc/ symbol, and a vector.
+
+Now that you know about Clojure's organization system, let's look at how to use
+it.
+
+* Storing Objects with def
+
+The primary tool in Clojure for storing objects is /def/. Other tools like
+/defn/ use /def/ under the hood. Here's an example of /def/ in action:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (def great-books ["East of Eden" "The Glass Bead Game"])
+  ;; => #'user/great-books
+
+  great-books
+  ;; => ["East of Eden" "The Glass Bead Game"]
+  #+end_src
+
+This code tells Clojure:
+
+1. Update the current namespace's map with the association between /great-books/
+   and the var.
+
+2. Find a free storage shelf.
+
+3. Store /["East of Eden" "The Glass Bead Game"]/ on the shelf.
+
+4. Write the address of the shelf on the var.
+
+5. Return the var (in this case, /#'user/great-books).
+
+This process is called /[fn:1]interning/ a var. You can intercat with a namespace's
+map of symbols-to-interned-vars using /ns-interns/. Here's how you'd get a map
+of interned vars:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns-interns *ns*)
+  ;; => {great-books #'user/great-books}
+#+end_src
+
+You can use the /get/ function to get a specific var:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (get (ns-interns *ns*) 'great-books)
+  ;; =>#'user/great-books
+#+end_src
+
+By evaluating /(ns-map *ns*)/, you can also get the full map that the namespace
+uses for looking up a var when given a symbol. /(ns-map *ns*)/ gives you a very
+large map that I won't print here, but try it out!.
+
+/#'user/great-books/ is the /reader form/ of a var. I'll explain more about
+reader forms in Chapter 7. For now, just know that you can use /#'/ to grab hold
+of the var corresponding to the symbol that follows; /#'user/great-books/ lets
+you use the var associated with the symbol /great-books/ within the /user/
+namespace. We can /deref/ vars to get the objects they point to:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (deref #'user/great-books)
+  ;; => ["East of Eden" "The Glass Bead Game"]
+#+end_src
+
+This is like telling Clojure. "Get the var associated with great-books and deref
+that bad Jackson."
+
+So far so good, right? Well, brace yourself, because this idyllic paradise of
+organization is about to be turned upside down! Call /def/ again with the same
+symbol:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (def great-books ["The Power of Bees" "Journey to Upstairs"])
+  great-books
+  ;; => ["The Power of Bees" "Journey to Upstairs"]
+#+end_src
+
+The var has been updated with the address of the new vector. It's like you used
+white-out on the address on a card in the card catalog and then wrote a new
+address. The result is that you can no longer ask Clojure to find the first
+vector. This is referred to as a /name collision/. Chaos! Anarchy!
+
+You may have experienced this in other programming languages. JavaScript is
+notorious for it, and it happens in Ruby as well. It's a problem because you can
+unintentionally overwrite your own code, and you also have to guarantee tat a
+third-part library won't overwrite your code. Melvil recoils in horror!
+Fortunately, Clojure allows you to create as many namess as you like so you can
+avoid these collision.
+
+* Creating and Switching to Namespaces
+
+Clojure has three tools for creating namespaces: [1] the function /create-ns/,
+[2] the function /in-ns/, and [3] the macro /ns/. You'll mostly use the /ns/
+macro in your Clojure files, but I'll hold off on explaining it for a few pages
+because it combines many tools, and it's easier to understand after I discuss
+each of the other tools.
+
+/create-ns/ takes a symbol, creates a namespace with that name if it doesn't
+exist already, and returnsthe namespace:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  ;; execute in REPL
+  user=> (create-ns 'cheese.taxonomy)
+  ;; =>#namespace[cheese.taxonomy]
+#+end_src
+
+You can use the returned namespace as an argument in a function call:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  user=> (ns-name (create-ns 'cheese.taxonomy))
+  ;; =>cheese.taxonomy
+#+end_src
+
+In practice, you'll probably never use /create-ns/ in your code, because it's
+not very useful to create a namespace and not move into it. Using /in-ns/ is
+more is more common because it creates the namespace if it doesn't exist and
+switches to it, as shown in Listing 6-1.
+
+#+begin_src clojure :result output :exports both eval: never-export
+  user=> (in-ns 'cheese.analysis)
+  ;; =>#namespace[cheese.analysis])
+#+end_src
+
+#+caption: Listing 6-1: Using /in-ns/ to create a namespace and switch to it
+#+attr_latex: scale=0.75
+#+label: fig:label
+
+Notice that your REPL prompt is now /cheese.analysis>/, indicating that you are
+indeed in the new namespace you just created. Now when you use /def/, it will
+store the name object in the /cheese.analysis/ namespace.
+
+But what if you want to use functions and data from other namespaces? To do
+that, you can use a /fully qualified/ symbol. The general form is
+/namespace/name/:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> (in-ns 'cheese.taxonomy)
+  ;; =>#namespace[cheese.taxonomy]
+  cheese.taxonomy> (def cheddars ["mild" "medium" "strong" "sharp" "extra sharp"])
+  ;; =>#'cheese.taxonomy/cheddars
+  cheese.taxonomy> (in-ns 'cheese.analysis)
+  ;; =>#namespace[cheese.analysis]
+  cheese.analysis> cheddars
+  ;; => Exceptio: Unable to resolve symbol: cheddars in this context
+  cheese.analysis>
+#+end_src
+
+This creates a new namespace, /cheese.taxonomy/, defines /cheddars/ in that
+namespace, and then switches back to the /cheese.analysis/ namespace. You'll get
+an exception if you try to refer the /cheese.taxonomy/ namespace's /cheddars/
+form within /cheese.analysis/, but using the fully qualified symbol works:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> cheese.taxonomy/cheddars
+  ;; =>["mild" "medium" "strong" "sharp" "extra sharp"]
+#+end_src
+
+Typing these fully qualified symbols can quickly become a nuisance. For
+instance, say I'm an extremely impatient academic specializing in
+semiotic-au-fromage, or the study of symbols as they relate to cheese.
+
+Suddenly, the worst conceivable thing that could possibly happen happens! All
+across the world, sacred and historically important cheeses have gone missing.
+Wisconsin's Standard Cheddar: gone! The Great Cheese Jars of Tutankhamun:
+stolen! The Cheese of Turin: replaced with a hoax cheese! This threatens to
+throw the world into total chaos for some reason! Naturally, as a distinguish
+cheese researcher, I am honor-bound to solve this mystery. Meanwhile, I'm being
+chased by the Illuminati, the Freemasons, and the Foot Clan!
+
+Because I'm academic, I attempt to solve this mystery the best way I know
+how--by heading to the library and researching the shit out of it. My trust
+assistant, Clojure, accompanies me. As we bustle from namespace to namespace, I
+shout at Clojure to hand me one thin after another.
+
+But Clojure is kind of dumb and has a hard time figuring out what I'm referring
+to. From within the /user/ namespace, I belt out, "Join! Give me join!"--specks
+of spittle flying from my mouth. /"RuntimeException: Unable to resolve symbol:
+join," Clojure whines in response. "For the love of brie, just hand me
+/clojure.string/join/!" I retort, and Clojure dutifully hands me the function I
+was looking for.
+
+My voice gets hoarse, I need some way to tell Clojure what objects to get me
+without having to use the fully qualified symbol every, damn time.
+
+Luckily, Clojure provides the /refer/ and /alias/ tools that let me yell at it
+more succinctly.
+
+** refer
+
+/refer/ gives you fine-grained control over how you refer to objects in other
+namespaces. fire up new REPL, session and try the following. Keep in mind that
+it's okay to play around with namespaces like this in the REPL, but you don't
+want your Clojure files to look like this; the proper way to structure your
+files is covered in "Real Project Organization" on page 133.
+
+#+begin_src clojure :result output :exports both eval: never-export
+  user> (in-ns 'cheese.taxonomy)
+  ;; =>#namespace[cheese.taxonomy]
+  cheese.taxonomy> (def cheddars ["mild" "medium" "strong" "sharp" "extra sharp"])
+  ;; =>#'cheese.taxonomy/cheddars
+  cheese.taxonomy> (def bries ["Wisconsin" "Somerset" "Brie de Meaux" "Brie de Melum"])
+  ;; =>#'cheese.taxonomy/bries
+  cheese.taxonomy> (in-ns 'cheese.analysis)
+  ;; =>#namespace[cheese.analysis]
+  cheese.analysis> (clojure.core/refer 'cheese.taxonomy)
+  ;; =>nil
+  cheese.analysis> bries
+  ;; =>["Wisconsin" "Somerset" "Brie de Meaux" "Brie de Melum"]
+  cheese.analysis> cheddars
+  ;; =>["mild" "medium" "strong" "sharp" "extra sharp"]
+  cheese.analysis>
+#+end_src
+
+This code creates a /cheese.taxonomy/ namespace and two vectors within it:
+/cheddars/ and /bries/. Then it creates and moves to a new namespace called
+/cheese.analysis/. Calling /refer/ with a namespace symbol lets you refer to the
+corresponding namespace's objects without having to use fully qualified symbols.
+It does this by updating the current namespace's symbol/object map. You can see
+the new entries like this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+cheese.analysis> (clojure.core/get (clojure.core/ns-map clojure.core/*ns*) 'bries)
+;; =>#'cheese.taxonomy/bries
+cheese.analysis> (clojure.core/get (clojure.core/ns-map clojure.core/*ns*) 'cheddars)
+;; =>#'cheese.taxonomy/cheddars
+#+end_src
+
+It's as if Clojure:
+
+1. Calls /ns-interns/ on the /cheese.taxonomy/ namespace
+
+2. Merges that with the /ns-map/ of the current namespace
+
+3. Makes the result the new /ns-map/ of the current namespace
+
+When you call /refer/, you can also pass it the filters /:only/, /:exclude/, and
+/:rename/. As the names imply, /:only/ and /:exclude/ restrict which
+/symbol/var/ mappings get merged into the current namespace's /ns-map/.
+/:rename/ lets you use different symbols for the vars being merged in. Here's
+what would happen if we had modified preceding example to use /:only/:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> (clojure.core/refer 'cheese.taxonomy :only ['bries])
+  cheese.analysis> bries
+  ;; => ["Wisconsin" "Somerset" "Brie de Meaux" "Brie de Melum"]
+  cheese.analysis> cheddars
+  ;; => RuntimeException: unable to resolve symbol: cheddars
+#+end_src
+
+And here's /:exclude/ in action:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> (clojure.core/refer 'cheese.taxonomy :exclude ['bries])
+  cheese.analysis> bries
+  ;; => RuntimeException: unable to resolve symbol: cheddars
+  cheese.analysis> cheddars
+  ;; => ["mild" "medium" "strong" "sharp" "extra sharp"]
+#+end_src
+
+Lastly, a /:rename/ example:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> (clojure.core/refer 'cheese.taxonomy :rename ['bries 'yummy-bries])
+  cheese.analysis> bries
+  ;; => RuntimeException: unable to resolve symbol: cheddars
+  cheees.analysis> yummy-bries
+  ;; => ["Wisconsin" "Somerset" "Brie de Meaux" "Brie de Melum"]
+#+end_src
+
+Notice that in these last examples we have to use the fully qualified names of
+all objects in /clojure.core/, like /clojure.core/ns-map/, and
+/clojure.core/refer/. We didn't have to do that in the /user/ namespace. That's
+because the REPL automatically refers /clojure.core/ within the user namespace.
+You can make your life easier by evaluating /(clojure.core/refer-clojure)/ when
+you create a new namespace; this will refer the /clojure.core/ namespace, and
+I'll be using if from now on. Instead of seeing /clojure.core/refer/ in the
+examples, you'll only see /refer/.
+
+Another thin to notice is you have complete freedom over how you organize your
+functions and data across namespace. This lets you sensibly group related
+functions and data together in the same namespace.
+
+Sometimes you may want a function to be available only to other functions within
+the same namespace. Clojure allows you o define /private/ function using
+/defn-/:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'cheese.analysis)
+  ;; Notice the dash after "defn"
+  (defn- private-function
+    "Just an example function that does nothing"
+    [])
+#+end_src
+
+If you try to call this function from another namespace or refer it, Clojure
+will throw an exception. You can see this when you evaluate the code at [L-1]
+and [L-2]:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> (in-ns 'cheese.taxonomy)
+  cheese.taxonomy> (clojure.ocre/refer-clojure)
+  cheese.taxonomy> (cheese.analysis/private-function)  [L-1]
+  cheese.taxonomy> (refer 'cheese.analysis :only ['private-function])  [L-2]
+#+end_src
+
+As you can see, even if you explicitly /refer/ the function, you can't use the
+function from another namespace, because you made it private. (If you want to be
+tricky, you can still access the private var using the arcane syntax
+/@#'some/private-var/, but you'll see rarely want to do that.)
+
+** alias
+
+Compared to /refer/, /alias/ is relatively simple. All it does is let you
+shorten a namespace name for using fully qualified symbol:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  cheese.analysis> (clojure.core/alias 'taxonomy 'cheese.taxonomy)
+  cheese.analysis> taxonomy/bries
+  ;; =>["Wisconsin" "Somerset" "Brie de Meaux" "Brie de Melun"]
+#+end_src
+
+This code lets us use call symbol from the /cheese.taxonomy/ namespace with the
+shorter alias /taxonomy/.
+
+/refer/ and /alias/ are two basic tools referring to objects outside your
+current namespace! They're great aids to REPL development.
+
+However, it's unlikely that you'd create your entire program in REPL. In the
+next section, I'll cover everything you need to know to organize a real project
+with source code living on the filesystem.
+
+* Real Project Organization
+
+Now that I've covered the building blocks organization system, I'll show you how
+to use them real projects. I'll discuss the relationship between files paths and
+namespace names, explain how to load a file with /require/ and /use/, and show
+how to use /ns/ to set up a namespace.
+
+** The Relationship Between File Paths and Namespace Names
+
+To kill two birds with one stone (or feed two birds with one seed, depending on
+how much of hippie you are), I'll cover more on a namespace while we work on
+catching the pesky international cheese thief by mapping the location of his
+heists. Run the following:
+
+#+begin_src bash :result output :exports both eval: never-export
+  lein new app the-divine-cheese-code
+#+end_src
+
+This should create a directory structure that looks like this:
+
+#+begin_src bash :result output :exports both eval: never-export
+.
+├── CHANGELOG.md
+├── doc
+│   └── intro.md
+├── .gitignore
+├── .hgignore
+├── LICENSE
+├── project.clj
+├── README.md
+├── resources
+├── src
+│   └── the_divine_cheese_code
+│       └── core.clj
+└── test
+    └── the_divie_cheese_code
+        └── core_test.clj
+#+end_src
+
+Now open /src/the_divine_cheese_code/core.clj/. You should see this on the first
+line:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:gen-class))
+#+end_src
+
+/ns/ is the primary way to create and manage namespace within Clojure. I'll
+explain it in full shortly. For now, though, just know that this line is very
+similar to the /in-ns/ function we used in Listing 6-1. It creates a namespace
+if it doesn't exist and then switches to it. I also cover /(:gen-class)/ in more
+detail in Chapter 12.
+
+The name of the namespace is the /divine-cheese-code.core/. In Clojure, there's
+a one-to-one mapping between a namespace name and the path of the file where the
+namespace is declared, according to the following conventions:
+
+  - When you create a directory with /lein/ (as you did here), the source code's
+    root is /src/ by default
+
+  - Dashes in namespace names correspond to underscore in the filesystem. So the
+    /the-divine-cheese-code/ is mapped to the /divine_cheese_code/ on the
+    filesystem.
+
+  - The component preceding a perion /(.)/ is a namespace name correspond to a
+    directory. For example, since /the-divine-cheese-code.core/ is the namespace name, /the_divine_cheese_code/ is directory.
+
+  - The final component of a namespace corresponds to a file with the /.clj/
+    extension; /core/ is mapped to /core.clj/.
+
+Your project will have one or more namespace,
+/the-divine-cheese-code.visualization.svg/. Go ahead and create the file for it
+now:
+
+#+begin_src bash :result output :exports both eval: never-export
+  mkdir src/the_divine_cheese_code/visualization
+  touch src/the_divine_cheese_code/svg.clj
+#+end_src
+
+Notice that the filesystem path follows these conventins. With the relationship
+between namespaces and the filesystem down, let's look at /require/ and /use/.
+
+** Requiring and Using Namespaces
+
+The code in the /the-divine-cheese-code.core/ namespace will use the functions
+in the namespace /the-divine-cheese-code.visualization.svg/ to create a SVG
+markup. To use svg's functions, /core/ will have to /require/ it. But first
+let's add some code to /svg.clj/. Make it look like this (you'll add more
+later):
+
+#+begin_src clojure :result output :exports both eval: never-export
+(ns the-divine-cheese-code.visualization.svg)
+
+(defn latlng->point
+  "Convert lat/lng map to coma-separated string"
+  [latlng]
+
+  (str (:lng latlng) "," (:lat latlng)))
+
+(defn points
+  [locations]
+  (clojure.string/join " " (map latlng->point locations)))
+#+end_src
+
+This defines two functions, /latlng->point/ and /points/, which you'll use to
+convert a seq of latitude/longitude coordinates into a string of points. To use
+this code from the /core.clj/ file, you have to /require/ it. /require/ takes a
+symbol designating a namespace and ensures that the namespace exists and is
+ready to be used; in this case, when you call /(require
+'the-divine-cheese-code.visualization.svg)/, Clojure reads and evaluates the
+corresponding file.
+
+By evaluating the file, it creates the
+/the-divine-cheese-code.visualization.svg/ namespace and defines the function
+/latlng->point/ and /points/ within that namespace. Even though the file
+/svg.clj in your project's directory, Clojure doesn't automatically evaluate it
+when it runs your project; you have to explicitly tell Clojure that you want to
+use it.
+
+After requiring the namespace, you can /refer/ it so that you don't have to use
+fully qualified names to reference the functions. Go ahead and require
+/the-divine-cheese-code.visualization.svg/ and add the /heists/ seq to make
+/core.clj/ match the listing:
+
+#+begin_src clojure :result output :exports both eval: never-export
+(ns the-divine-cheese-code.core)
+;; Ensure that the SVG code is evaluated
+(require 'the-divine-cheese-code.visualization.svg)
+;; Refer the namespace so that you don't have to use the
+;; fully qualified name to reference svg function
+(refer 'the-divine-cheese-code.visualization.svg)
+
+(def heists [{:location "Cologne, Germany"
+              :cheese-name "Archbishop Hildebold's Cheese Pretzel"
+              :lat 50.95
+              :lng 6.97}
+             {:location "Zurich, Switzerland"
+              :cheese-name "The Standard Emmental"
+              :lat 47.37
+              :lng 8.55}
+             {:location "Marseille, Franch"
+              :cheese-name "Le Fromage de Cosquer"
+              :lat 43.30
+              :lng 5.37}
+             {:location "Zurich, Switzerland"
+              :cheese-name "The Lesser Emmental"
+              :lat 47.37
+              :lng 8.55}
+             {:location "Vatican City"
+              :cheese-name "The Cheese of Turin"
+              :lat 41.90
+              :lng 12.45}])
+
+(defn -main
+  "I don't do a whole lot ... yet."
+  [& args]
+  (println (points heists)))
+#+end_src
+
+Now you have a seq of /heist/ location to work with and you can use functions
+from the /visualization.svg/ namespace. The /main/ function simply applies the
+/points / functions to /heists/. If you run the project with /lein run/, you
+should see this:
+
+#+begin_src bash :result output :exports both eval: never-export
+  50.95,6.97 47.37,8.55 43.3,5.37 47.37,8.55 41.9,12.45
+#+end_src
+
+Hooray! You're one step closer to catching that purloiner of the fermentted
+curd! Using require successfully loaded
+/the-divine-cheese-code.visualization.svg/ for use.
+
+The details of /require/ are actually a bit complicated, but for practical
+purposes you can think /require/ as telling Clojure the following:
+
+1. Do nothing if you've already called /require/ with this symbol (/the-divine-cheese-code.visualization.svg)
+
+2. Otherwise, find the file that corresponds to this symbol using the rules
+   described in "The Relationship Betwen Files Paths and Namespace names" on
+   page 133. In this case, Clojure find
+   /src/the_divine_cheese_code/visualization/svg.clj/.
+
+
+Read and evaluate to content of that file. Clojure expect the file to declare a
+namespace corresponding to its path (which ours does).
+
+/require/ also lets you alias a namespace when you require it, using /:as/ or
+/alias/. This:
+
+#+begin_src clojure :result output :exports both eval: never-export
+(require '[the-divine-cheese-code.visualization.svg :as svg])
+#+end_src
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (require 'the-divine-cheese-code.visualization.svg)
+  (alias 'svg the-divine-cheese-code.visualization.sv)
+#+end_src
+
+You can now use the aliased namespaced:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (svg/points heists)
+  50.95,6.97 47.37,8.55 43.3,5.37 47.37,8.55 41.9,12.45
+#+end_src
+
+Clojure provides another shortcut. Instead of calling /require/ and /refer/
+separately, the function use does both. It's frowned upon to use /use/ in
+production code, but it's handy when you're experimenting in the REPL and you
+want to quickly get your hands on some functions. For example, this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (require 'the-divine-cheese-code.visualization.svg)
+  (refer 'the-divine-cheese-code.visualization.svg)
+#+end_src
+
+Is equivalent to this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+(use 'the-divine-cheese-code.visualization.org)
+#+end_src
+
+You can alias a namespace with /use/ just like you can with /require/. This:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (require 'the-divine-cheese-code.visualization.svg)
+  (refer 'the-divine-cheese-code.visualization.svg)
+  (alias 'svg 'the-divine-cheese-code.visualization.svg)
+#+end_src
+
+Is equivalent to the code in Listing 6-2, which also shows aliased namespaces
+being used in function calls.
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (use '[the-divine-cheese-code.visualization.svg :as svg])
+  (= svg/points points)
+
+  (= svg/latlng->point latlng->point)
+#+end_src
+
+#+caption: Listing 6-2: Sometimes it's handy to both /use/ and /alias/ a namespace.
+#+attr_latex: scale=0.75
+#+label: fig:label
+
+It may seem redundant to /alias/ a namespace with /use/ here because /use/
+already refers the namespace (which lets you simply call /points/ instead of
+/svg/points/). In certain situation, though, it's handy because /use/ takes the
+same options as /refer/ (/:only/, /:exlcude/, /:as/, an /:rename/). You might
+want to alias a namespace with /use/ when you've skipped referring a symbol. You
+could do this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (require 'the-divine-cheese-code.visualization.svg)
+  (refer 'the-divine-cheese-code.visualization.svg :as :only ['points])
+#+end_src
+
+Or you could use the /use/ form in Listing 6-3 (which also includes examples of
+how you can call functions).
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (use '[the-divine-cheese-code.visualization.svg :as svg :only [points]])
+  (refer 'the-divine-cheese-code.visualization.svg :as :only ['points])
+  (= svg/points points)
+  ;; => true
+
+  ;; We can use the alias to reach latlng->point
+  svg/latlng->point
+  ; This doesn't throw an exception
+
+  ;; But we can't use the bare name
+  latlng->point
+  ;; This does throw an exception!
+#+end_src
+#+caption: Listing 6-3: Aliasing a namespace after you use it lets you refer to symbol that you excluded.
+#+attr_latex: scale=0.75
+#+label: fig:label
+
+NOTE: It's not recommend to use /use/, it's old style but useful to understand.
+
+  - /use/ automatically loads the namespace (like /require/).
+  - It also refers (imports) the specified vars unqualified.
+  - The /:as/ alias still works, but it's considering deprecated style since
+    Clojure 1.4+ (/use/ mixes aliasing and referring in one call, which makes
+    code harder to read).
+
+If you try to Listing 6-3 in a REPL, and /latlng->point/ doesn't throw an
+exception, it's because you referred /latlng->point/ in Listing 6-2. You'll need
+to restart your REPL session for the code to behave as shown in Listing 6-3.
+
+The takeaway here is that /require/ and /use/ load files and optionally /alias/
+or /refer/ their namespaces. As you write Clojure programs and read code written
+by others, you might point it'll make sense to read Clojure's API doc
+(https://clojure.org/libs/) to understand what's going on. However, what you've
+learned so far about /require/ and /use/ should cover 95.3 percent of your
+needs.
+
+** The ns Macro
+
+Now it's time to look at the /ns/ macro. The tools covered so far--/in-ns/,
+/refer/, /alias/, /require/, and /use/--are most often used when you're playing
+in the REPL. In your source code files, you'll typically use the /ns/ macro
+because it allows you to use tools described so far succinctly and provides
+other incorporate /require/, /use/, /in-ns/, /alias/, and /refer/.
+
+One useful task /ns/ does is refer the /clojure.core/ namespace by default.
+That's why you can call /println/ form within /the-divine-cheese-code/ without
+using the fully qualified name, /clojure.core/println/.
+
+You can control what gets referred from /clojure.core/ with /:refer-clojure/,
+which takes the same options as /refer/:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    :refer-clojure :exclude [println])
+#+end_src
+
+If you called this at the beginning of /divine_cheese_code/.core.clj/, it would
+break your code, forcing you to use /clojure.core/println/ within the /-main/
+function.
+
+Within /ns/, the form /(:refer-clojure)/ is called a /reference/. This might
+look weird to you. Is this reference a function call? A macro? What is it?
+You'll learn more about the underlying machinery in Chapter 7. For now, you just
+need to understand how each reference maps to function calls. For example, the
+preceding code is equivalent to this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'the-divine-cheese-code.core)
+  (refer 'clojure.core :exclude ['println])
+#+end_src
+
+There are  six possible kind of references within /ns/:
+
+- /(:refer-clojure)/
+- /(:require)/
+- /(:use)/
+- /(:import)/
+- /(:load)/
+- /(:gen-class)/
+
+/(:import)/ and /(:gen-class)/ are covered in Chapter 12. I won't cover
+/(:load)/ because it is seldom[fn:2] use.
+
+/(:require)/ works a lot like the /require/ function. For example, this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese.code.core
+    (:require the-divine-cheese-code.visualization.svg))
+#+end_src
+
+
+Is equivalent to this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'the-divine-cheese-code.core)
+  (require 'the-divine-cheese-code.visualization.svg)
+#+end_src
+
+Notice that in the /ns/ form (unlike the /in-ns/ function call), you don't have
+to quote your symbol with \'\. You never have to quote symbol within /ns/.
+
+You can also /alias/ a library that you require within /ns/, just like when you
+call the function. This:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:require [the-divine-cheese-code.visualization.svg :as svg]))
+#+end_src
+
+Is equivalent to this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:require [the-divine-cheese-code.visualization.svg :as svg]))
+#+end_src
+
+You can require multiple libraries in a /(:require)/ references as follows.
+this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:require [the-divine-cheese-code.visualization.svg :as svg]
+              [clojure.java.browse :as browse]))
+#+end_src
+
+Is equivalent to this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'the-divine-cheese-code.core)
+  (require ['the-divine-cheese-code.visualization.svg :as 'svg])
+  (require [clojure.java.browse :as 'browse])
+#+end_src
+
+However, one difference between /(:require)/ reference and the /require/
+function is that the reference also allows you to refer names. This:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:require [the-divine-cheese-code.visualization.svg :refer [points]]))
+#+end_src
+
+Is equivalent to this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core)
+  (require 'the-divine-cheese-code.visualization.svg)
+  (refer 'the-divine-cheese-code.visualization.svg :only ['points])
+#+end_src
+
+You can also refer all symbols (notice the /:all/ keyword):
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:require [the-divine-cheese-code.visualization.svg :refer :all]))
+#+end_src
+
+Which is the same as doing this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'the-divine-cheese-code.core)
+  (require 'the-divine-cheese-code.visualization.svg)
+  (refer 'the-divine-cheese-code.visualization.svg)
+#+end_src
+
+This is the preferred way to require code, /alias/ namespaces, and /refer/
+symbols. It's recommended that you not use (/:use/), but since it's likely that
+you'll come across it, it's good to know how it works. You know the drill. This:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:use clojure.java.browse))
+#+end_src
+
+does this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'the-divine-cheese-code.core)
+  (use 'clojure.java.browse)
+#+end_src
+
+whereas this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.core
+    (:use [clojure.java brose io]))
+#+end_src
+
+does this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (in-ns 'the-divine-cheese-code.core)
+  (use 'clojure.java.browse)
+  (use 'clojure.java.io)
+#+end_src
+
+Notice that when you follow /:use/ with a vector, it takes the first symbol as
+the /base/ and then calls /use/ with each symbol that follows.
+
+Oh my god, that's it! Now you can use /ns/ like a pro! And you're going to need
+to, dammit, because that /voleur des formages/ (as they probably say in French)
+is still running amok! Remember him/her?!
+
+* To Catch a Burglar
+
+We can't follow plunderer of parmesan to make off with any more cheese! It's
+time to finish drawing lines based on the coordinates of the heists! That will
+surely reveal something!
+
+Using the latitude coordinates for each heist, you'll connect the dots in an SVG
+image. But if you draw line using the given coordinates, the result won't look
+right for two reasons. Firs, latitude coordinates ascend from south to north,
+whereas SVG y-coordinates ascend from top to bottom. In other words, you need to
+flip the coordinates or the drawing will be upside down.
+
+Second, the drawing will be very small. To fix that, you'll zoom in on in by
+translating and scaling it. It's like turning a drawing that looks like Figure
+6-1a into Figure 6-1b.
+
+
+[[file:figures-listing-and-images/Figure-6-1.png]]
+#+caption: Figure 6-1: Flipping, translating, and scaling latitude coordinates to make an SVG image.
+#+attr_latex: scale=0.75
+#+label: fig:label
+
+Honestly, this all completely arbitrary and it's no longer directly related to
+code organization. But it's fun and I think you'll have a good time going
+through the code! Make your /svg.clj/ file match listing 6-4:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (ns the-divine-cheese-code.visualization.svg
+    (:require [clojure.string :as s])
+    (:refer-clojure :exclude [min max]))
+
+  (defn comparator-over-maps  ;; [L-1]
+    [comparsion-fn ks]
+    (fn [maps]
+      (zipmap ks  ;; [L-2]
+              (map (fn [k] (apply comparsion-fn (map k maps))) ;; [L-3]
+                   ks))))
+  (def min (comparator-over-maps clojure.core/min [:lat :lng]))  ;; [L-4]
+  (def max (comparator-over-maps clojure.core/max [:lat :lng]))
+#+end_src
+#+caption: Listing 6-4: Constructing map comparison functions
+#+attr_latex: scale=0.75
+#+label: fig:label
+
+You define the /comparator-over-maps/ functions at [L-1]. This is probably the
+trickiest bit, so bear with me, /comparator-over-maps/ is a function that
+returns a function. The returned function compares the values for the keys
+provided by the /ks/ parameter using the supplied comparison function,
+/comparison-fn/.
+
+You use /comparison-over-maps/ to construct the /min/ and /max/ function [L-4],
+which you'll use to find the top-left and bottom-right corners of our drawing.
+Here's /min/ in action:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (min [{:lat 1 :lng 3} {:lat 5 :lng 0}])
+  ;; => {:a 1 :b 0}
+#+end_src
+
+When you call /min/, it calls /zipmap/ [L-2], which takes two arguments, both
+seqs, and return a new map. The elements of the first seq become the keys, and
+the elements of the second seq become the values:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (zipmap [:a :b] [1 2])
+  ;; => {:a 1, :b 2}
+#+end_src
+
+At [L-2], the first argument to /zipmap/ is /ks/, so the elements of /ks/ will
+be the keys of the returned map. The second argument is the result of the map
+call at [L-3]. That map call actually performs the comparison.
+
+finally, at [L-4] you use /comparator-over-maps/ to create the comparison
+functions. If you think the drawing as being inscribed in a rectangle, /min/ is
+the corner of the rectangle closest to (0,0) and /max/ is the corner farthest
+from it.
+
+Here's the next part of the code:
+
+#+begin_src clojure :result output :exports both eval: never-export
+(defn translate-to-00  ;; [L-5]
+  [locations]
+  (let [mincoords (min locations)]
+    (map #(merge-with - % mincoords) locations)))
+
+(defn scale  ;; [L-6]
+  [width height locations]
+  (let [maxcoords (max locations)
+        ratio {:lat (/ height (:lat maxcoords))
+               :lng (/ width (:lng maxcoords))}]
+    (map #(merge-with * % ratio) locations)))
+#+end_src
+
+/translate-to-00/, defined at [L-5], works by finding the /min/ of our locations
+and subtracting that value from each location. It uses /merge-with/, which works
+like this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (merge-with - {:lat 50 :lng 10} {:lat 5 :lng 5})
+  ;; => {:lat 45, :lng 5}
+#+end_src
+
+Then we define the function /scale/ at [L-6], which multiplies each point by the
+ratio between the maximun latitude and longitude and the desired height and
+width.
+
+Here's the rest of the code for /svg.clj/:
+
+#+begin_src clojure :result output :exports both eval: never-export
+  (defn latlng->point
+    "Convert lat/lng map to coma-separated string"
+    [latlng]
+    (str (:lat latlng) "," (:lng latlng)))
+
+  (defn points
+    [locations]
+    (clojure.string/join " " (map latlng->point locations)))
+
+  (defn line
+    [points]
+    (str "<polyline points=\"" points "\" />"))
+
+  (defn transform
+    "Just chains other functions"
+    [width height locations]
+    (->> locations
+         translate-to-00
+         (scale width height)))
+
+  (defn xml
+    "Svg 'template', which also flips the coordinate system"
+    [width height locations]
+    (str "<svg height=\"" height "\" width=\"" width "\">"
+         ;; These two <g> tags flip the coordinate system
+         "<g transform=\"translate(0, " height ")\">"
+         "<g transform=\"scale(1, -1)\">"
+         (-> (transform width height locations)
+             points
+             line)
+         "</g></g>"
+         "</svg>"))
+#+end_src
+
+The functions here are pretty straightforward. They just take /{:lat x :lng y}/
+maps and transform them so that an SVG can be created. /latlng->point/ returns a
+string that can be used to define a point in SVG markup. /points/ converts a seq
+of /lat/lng/ maps into a space-separated string of points. /line/ returns the
+SVG markup for a line that connects all given space-separated string of points.
+/transform/ takes a seq of locations, translate them so they start at the point
+(0, 0), and scale them to he given width and height. Finally, /xml/ produces the
+markup for displaying the given location using SVG.
+
+With /svg.clj/ all coded up, now make /core.clj/ look it like this:
+
+#+begin_src clojure :result output :exports both eval: never-export
+(ns the-divine-cheese-code.core
+  (:require [clojure.java.browse :as browse]
+            [the-divine-cheese-code.visualisation.svg :refer [xml]])
+  (:gen-class))
+
+(def heists [{:location "Cologne, Germany"
+              :cheese-name "Archbishop Hildebold's Cheese Pretzel"
+              :lat 50.95
+              :lng 6.97}
+             {:location "Zurich, Switzerland"
+              :cheese-name "The Standard Emmental"
+              :lat 47.37
+              :lng 8.55}
+             {:location "Marseille, Franch"
+              :cheese-name "Le Fromage de Cosquer"
+              :lat 43.30
+              :lng 5.37}
+             {:location "Zurich, Switzerland"
+              :cheese-name "The Lesser Emmental"
+              :lat 47.37
+              :lng 8.55}
+             {:location "Vatican City"
+              :cheese-name "The Cheese of Turin"
+              :lat 41.90
+              :lng 12.45}])
+
+(defn url
+  [filename]
+  (str "file:///"
+       (System/getProperty "user.dir")
+       "/"
+       filename))
+
+(defn -main
+  [& args]
+  (let [filename "map.html"]
+    (->> heists
+         (xml 50 100)
+         template
+         (spit filename))
+    (browse/browse-url (url filename))))
+#+end_src
+
+Nothing too complicated is going on here. Within /-main/ you build up the
+drawing using the /xml/ and /template/ functions, write the drawing to a file
+with /spit/, and then open it with /browse/browse-url/. You should try that now!
+
+Run /lein run/ and you'll see something looks like figure 6-2.
+
+[[file:figures-listing-and-images/Figure-6-2.png]]
+#+caption: Figure 6-2: The final SVG of the heist pattern!
+#+attr_latex: scale=0.75
+#+label: fig:label
+
+Wait a minute ... that looks a lot like ... that looks a lot like a lambda.
+Clojure's logo is a lambda ... oh my god! Clojure, it was you this whole time.
+
+* Summary
+
+You learned a lot in this chapter. At this point, you should have all the tools
+you need to start organizing your projects. You now know that namespaces
+organize maps between symbol and vars, and that vars are references to Clojure
+objects (data structures, functions, and so on). /def/ stores an object and
+updates the current namespace with a map between a symbol and a var that points
+to the object. You can create private functions with /defn-/.
+
+Clojure lets you create namespaces with /create-ns/, but often it's more useful
+to use /in-ns/, which switches to the namespace as well. You'll probably only
+use these functions in the REPL. When you're in the REPL, you're always /in/ the
+current namespace. When you're defining namespaces in a file rather than the
+REPL, you should use the /ns/ macro, and there's one-to-one relationship between
+a namespace and its path on the filesystem.
+
+You can refer objects in other namespaces by using the fully qualified name,
+like, /cheese.taxonomy/cheddars/. /refer/ let you use names from other
+namespaces without having to fully qualify them, and /alias/ lets you use a
+shorter name for a namespace when you're writing out a fully qualified name.
+
+/require/ and /use/ ensure that a namespace exists and is ready to be used, and
+optionally let you /refer/ and /alias/ the corresponding namespaces. You should
+us /ns/to call /require/ and /use/ in your source files.
+https://gist.github.com/ghoseb/287710/ is a great reference for all vagaries of
+using /ns/.
+
+lastly and most importantly, it ain't easy being cheesy.
+
+* Footnotes
+[fn:2] not common; infrequent
+
+[fn:1] An optimization technique that stores only one copy of each unique
+immutable object, such as strings or small integers, and reuse that single
+object whenever the same value is needed again.
