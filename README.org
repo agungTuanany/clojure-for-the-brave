@@ -10,13 +10,7 @@
 
 I've been watching Clojure since 2015, but I'm not sure enough my path from deep
 knowledge JavaScript jump into Clojure. At that time JavaScript environment so
-adequate
-
-I try to learn with re-write and try one by one the code examples. There is view
-in last chapter the code examples didn't match between the REPL result with the
-book result. So I try to figure it out.
-
-In end of chapter there's exercise, I try to do it.
+adequate.
 
 At that time, the JavaScript environment was developing rapidly with the
 implementation of ECMA-6, while I was just stuck with various frameworks that
@@ -34,7 +28,10 @@ configurations in a modular way, ensuring they didn't depend on one another.
 
 Then I came across this book, which thoroughly teaches the fundamentals of
 Clojure in Part II, covering syntax, data structures, functions, and how they
-all come together.
+all come together. In Part III, the book explains concurrency, which includes
+futures, delays, and promises, with comprehensive case studies.
 
-In Part III, the book explains concurrency, which includes futures, delays, and
-promises, with comprehensive case studies.
+I try to learn with re-write and try one by one the code examples. There is view
+in last chapter the code examples didn't match between the REPL result with the
+book result. So I try to figure it out. In the end of chapter there's exercise,
+I try to do it.
